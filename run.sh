@@ -39,16 +39,10 @@ install_prerequisites() {
 	case "$lsb_dist" in
         ubuntu|debian|raspbian)
 			packages="apt-transport-https ca-certificates sudo git"
-			if ! command -v gpg > /dev/null; then
-				packages="$packages gnupg"
-			fi
             ;;
-        centos|fedora)
-            # TODO: Figure out what packages are needed
-            packages="initscripts sudo git"
-            ;;
-        alpine)
+        *)
             packages="sudo git"
+            ;;
 	esac
     do_install $packages
 }
@@ -58,12 +52,11 @@ do_install() {
 	case "$lsb_dist" in
         ubuntu|debian|raspbian)
 			(
-				$sh_c "apt-get update -qq >/dev/null"
-				$sh_c "DEBIAN_FRONTEND=noninteractive apt-get install -y -qq $@ >/dev/null"
+				$sh_c "apt-get update -qq"
+				$sh_c "DEBIAN_FRONTEND=noninteractive apt-get install -y -qq $@"
 			)
             ;;
         centos|fedora)
-            # TODO: Figure out what packages are needed
             if [ "$lsb_dist" = "fedora" ]; then
 				pkg_manager="dnf"
 				config_manager="dnf config-manager"
@@ -83,8 +76,8 @@ do_install() {
             ;;
         alpine)
 			(
-				$sh_c "apk update >/dev/null"
-				$sh_c "apk add $@ >/dev/null"
+				$sh_c "apk update"
+				$sh_c "apk add $@"
 			)
         *)
 			echo
