@@ -93,11 +93,9 @@ gitr_done() {
     if ! -z $1; then
         tmp_dir=$(mktemp -d -t ci-XXXXXXXXXX)
         git clone $1 $tmp_dir
-        path=$tmp_dir/$(ls -1 $tmp_dir | head -1)
-        chmod +x $path/$2
+        chmod +x $tmp_dir/$2
         args=$(echo $@ | awk '{$1="";$2="";print $0}')
         $sh_c "$path/$2 $args"
-        rm -r $tmp_dir
     fi
 }
 
