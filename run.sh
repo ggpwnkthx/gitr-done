@@ -79,6 +79,7 @@ do_install() {
 				$sh_c "apk update"
 				$sh_c "apk add $@"
 			)
+            ;;
         *)
 			echo
 			echo "ERROR: Unsupported distribution '$lsb_dist'"
