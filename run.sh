@@ -90,8 +90,8 @@ do_install() {
 }
 
 gitr_done() {
-    if ! -z $1; then
-        tmp_dir=$(mktemp -d -t ci-XXXXXXXXXX)
+    if ! -z "$1"; then
+        tmp_dir=$(mktemp -d)
         git clone $1 $tmp_dir
         chmod +x $tmp_dir/$2
         args=$(echo $@ | awk '{$1="";$2="";print $0}')
