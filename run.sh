@@ -101,7 +101,6 @@ gitr_done() {
 
 sudo_me() {
     if [ "$user" != 'root' ]; then
-        if [ -n ]
         case "$lsb_dist" in
             ubuntu|debian|raspbian)
                 (
