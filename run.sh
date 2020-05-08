@@ -51,7 +51,7 @@ do_install() {
 	case "$lsb_dist" in
 		ubuntu|debian|raspbian)
 			$sh_c "apt-get update -qq"
-			$sh_c "DEBIAN_FRONTEND=noninteractive apt-get install -y $@"
+			for pkg in $@; do $sh_c "DEBIAN_FRONTEND=noninteractive apt-get install -y $pkg"; done
 			;;
 		centos|fedora)
 			if command_exists dnf; then
@@ -63,7 +63,7 @@ do_install() {
 			;;
 		alpine)
 			$sh_c "apk update"
-			$sh_c "apk add $@"
+			for pkg in $@; do $sh_c "apk add -y $pkg"; done
 			;;
 		*)
 			echo
