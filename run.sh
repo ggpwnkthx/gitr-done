@@ -59,7 +59,7 @@ do_install() {
 			else
 				pkg_manager="yum"
 			fi
-			$sh_c "$pkg_manager install -y $@"
+			for pkg in $@; do $sh_c "$pkg_manager install -y $pkg"; done
 			;;
 		alpine)
 			$sh_c "apk update"
@@ -76,11 +76,12 @@ do_install() {
 
 gitr_done() {
 	if [ -n "$1" ]; then
-		tmp_dir=$(mktemp -d)
-		git clone $1 $tmp_dir
-		chmod +x $tmp_dir/$2
+		$sh_c mkdir -p /usr/src
+		cd /usr/src
+		repo=$(git clone $1 2>&1 | awk -F "'" '{print $2}')
+		chmod +x /usr/src/$repo/$2
 		args=$(echo $@ | awk '{$1="";$2="";print $0}')
-		$tmp_dir/$2 $args
+		/usr/src/$repo/$2 $args
 	fi
 }
 
