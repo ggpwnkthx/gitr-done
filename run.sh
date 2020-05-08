@@ -50,35 +50,20 @@ do_install() {
 	# Run setup for each distro accordingly
 	case "$lsb_dist" in
 		ubuntu|debian|raspbian)
-			(
-				$sh_c "apt-get update -qq"
-				$sh_c "DEBIAN_FRONTEND=noninteractive apt-get install -y -qq $@"
-			)
+			$sh_c "apt-get update -qq"
+			$sh_c "DEBIAN_FRONTEND=noninteractive apt-get install -y $@"
 			;;
 		centos|fedora)
-			if [ "$lsb_dist" = "fedora" ]; then
+			if command_exists dnf; then
 				pkg_manager="dnf"
-				config_manager="dnf config-manager"
-				enable_channel_flag="--set-enabled"
-				disable_channel_flag="--set-disabled"
-				pkg_suffix="fc$dist_version"
 			else
 				pkg_manager="yum"
-				config_manager="yum-config-manager"
-				enable_channel_flag="--enable"
-				disable_channel_flag="--disable"
-				pkg_suffix="el"
 			fi
-			(
-				echo "$pkg_manager install -y -q $@"
-				$sh_c "$pkg_manager install -y -q $@"
-			)
+			$sh_c "$pkg_manager install -y $@"
 			;;
 		alpine)
-			(
-				$sh_c "apk update"
-				$sh_c "apk add $@"
-			)
+			$sh_c "apk update"
+			$sh_c "apk add $@"
 			;;
 		*)
 			echo
