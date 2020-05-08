@@ -98,9 +98,10 @@ sudo_me() {
 
 gitr_done() {
 	if [ -n "$1" ]; then
-		$sh_c "mkdir -p /usr/src"
+		sudo mkdir -p /usr/src
 		cd /usr/src
-		repo=$(git clone $1 2>&1 | awk -F "'" '{print $2}')
+		repo=$(sudo git clone $1 2>&1 | awk -F "'" '{print $2}')
+		sudo chown -R $(whoami):$(whoami) /usr/src/$repo
 		chmod +x /usr/src/$repo/$2
 		args=$(echo $@ | awk '{$1="";$2="";print $0}')
 		/usr/src/$repo/$2 $args
