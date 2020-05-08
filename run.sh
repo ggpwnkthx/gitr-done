@@ -51,19 +51,35 @@ do_install() {
 	case "$lsb_dist" in
 		ubuntu|debian|raspbian)
 			$sh_c "apt-get update -qq"
-			for pkg in $@; do $sh_c "DEBIAN_FRONTEND=noninteractive apt-get install -y $pkg"; done
+			for pkg in $@; do 
+				if ! apt -qq list sudo; then
+					$sh_c "DEBIAN_FRONTEND=noninteractive apt-get install -y $pkg"
+				fi
+			done
 			;;
 		centos|fedora)
 			if command_exists dnf; then
-				pkg_manager="dnf"
+				for pkg in $@; do
+					if ! dnf list installed $pkg; then
+						$sh_c "dnf install -y $pkg"
+					if
+				done
 			else
-				pkg_manager="yum"
+				for pkg in $@; do
+					if ! yum list installed $pkg; then
+						$sh_c "yum install -y $pkg"
+					if
+				done
 			fi
-			for pkg in $@; do $sh_c "$pkg_manager install -y $pkg"; done
+			
 			;;
 		alpine)
 			$sh_c "apk update"
-			for pkg in $@; do $sh_c "apk add $pkg"; done
+			for pkg in $@; do 
+				if ! apk search -v $pkg; then
+					$sh_c "apk add $pkg"; 
+				fi
+			done
 			;;
 		*)
 			echo
