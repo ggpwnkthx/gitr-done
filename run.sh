@@ -74,17 +74,6 @@ do_install() {
 	esac
 }
 
-gitr_done() {
-	if [ -n "$1" ]; then
-		$sh_c "mkdir -p /usr/src"
-		cd /usr/src
-		repo=$(git clone $1 2>&1 | awk -F "'" '{print $2}')
-		chmod +x /usr/src/$repo/$2
-		args=$(echo $@ | awk '{$1="";$2="";print $0}')
-		/usr/src/$repo/$2 $args
-	fi
-}
-
 sudo_me() {
 	if [ "$user" != 'root' ]; then
 		case "$lsb_dist" in
@@ -103,6 +92,17 @@ sudo_me() {
 				)
 				;;
 		esac
+	fi
+}
+
+gitr_done() {
+	if [ -n "$1" ]; then
+		$sh_c "mkdir -p /usr/src"
+		cd /usr/src
+		repo=$(git clone $1 2>&1 | awk -F "'" '{print $2}')
+		chmod +x /usr/src/$repo/$2
+		args=$(echo $@ | awk '{$1="";$2="";print $0}')
+		/usr/src/$repo/$2 $args
 	fi
 }
 
