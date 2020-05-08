@@ -76,7 +76,7 @@ do_install() {
 
 gitr_done() {
 	if [ -n "$1" ]; then
-		$sh_c mkdir -p /usr/src
+		$sh_c "mkdir -p /usr/src"
 		cd /usr/src
 		repo=$(git clone $1 2>&1 | awk -F "'" '{print $2}')
 		chmod +x /usr/src/$repo/$2
