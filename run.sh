@@ -52,7 +52,7 @@ do_install() {
 		ubuntu|debian|raspbian)
 			$sh_c "apt-get update -qq"
 			for pkg in $@; do 
-				if ! apt -qq list sudo; then
+				if ! apt -qq list $pkg; then
 					$sh_c "DEBIAN_FRONTEND=noninteractive apt-get install -y $pkg"
 				fi
 			done
