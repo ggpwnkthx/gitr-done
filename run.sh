@@ -62,13 +62,13 @@ do_install() {
 				for pkg in $@; do
 					if ! dnf list installed $pkg; then
 						$sh_c "dnf install -y $pkg"
-					if
+					fi
 				done
 			else
 				for pkg in $@; do
 					if ! yum list installed $pkg; then
 						$sh_c "yum install -y $pkg"
-					if
+					fi
 				done
 			fi
 			
