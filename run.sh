@@ -3,9 +3,21 @@ command_exists() {
 	command -v "$@" > /dev/null 2>&1
 }
 
-set_sh_c() {
+check_environment() {
     user="$(id -un 2>/dev/null || true)"
 
+	lsb_dist=""
+	# Every system that we officially support has /etc/os-release
+	if [ -r /etc/os-release ]; then
+		lsb_dist="$(. /etc/os-release && echo "$ID")"
+	fi
+	# Returning an empty string here should be alright since the
+	# case statements don't act unless you provide an actual value
+    
+	lsb_dist="$(echo "$lsb_dist" | tr '[:upper:]' '[:lower:]')"
+}
+
+set_sh_c() {
     sh_c='sh -c'
 	if [ "$user" != 'root' ]; then
 		if command_exists sudo; then
@@ -20,18 +32,6 @@ set_sh_c() {
 			exit 1
 		fi
 	fi
-}
-
-check_environment() {
-	lsb_dist=""
-	# Every system that we officially support has /etc/os-release
-	if [ -r /etc/os-release ]; then
-		lsb_dist="$(. /etc/os-release && echo "$ID")"
-	fi
-	# Returning an empty string here should be alright since the
-	# case statements don't act unless you provide an actual value
-    
-	lsb_dist="$(echo "$lsb_dist" | tr '[:upper:]' '[:lower:]')"
 }
 
 install_prerequisites() {
@@ -95,14 +95,37 @@ gitr_done() {
         git clone $1 $tmp_dir
         chmod +x $tmp_dir/$2
         args=$(echo $@ | awk '{$1="";$2="";print $0}')
-        $sh_c "$tmp_dir/$2 $args"
+        $tmp_dir/$2 $args
+    fi
+}
+
+sudo_me() {
+    if [ "$user" != 'root' ]; then
+        if [ -n ]
+        case "$lsb_dist" in
+            ubuntu|debian|raspbian)
+                (
+                    $sh_c "addgroup -S sudo"
+                    $sh_c "sed -i '/^# %sudo/s/^# //' /etc/sudoers"
+                    $sh_c "adduser $user sudo"
+                )
+                ;;
+            centos|fedora)
+                (
+                    $sh_c "groupadd -r sudo"
+                    $sh_c "echo '%sudo ALL=(ALL) ALL' > /etc/sudoers"
+                    $sh_c "useradd -G sudo $user"
+                )
+                ;;
+        esac
     fi
 }
 
 wrapper() {
-    set_sh_c
     check_environment
+    set_sh_c
     install_prerequisites
+    sudo_me
     gitr_done $@
 }
 
