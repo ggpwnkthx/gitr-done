@@ -63,7 +63,7 @@ do_install() {
 			;;
 		alpine)
 			$sh_c "apk update"
-			for pkg in $@; do $sh_c "apk add -y $pkg"; done
+			for pkg in $@; do $sh_c "apk add $pkg"; done
 			;;
 		*)
 			echo
