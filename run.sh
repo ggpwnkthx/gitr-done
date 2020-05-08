@@ -38,13 +38,12 @@ install_prerequisites() {
     # Run setup for each distro accordingly
 	case "$lsb_dist" in
         ubuntu|debian|raspbian)
-			packages="apt-transport-https ca-certificates sudo git"
+			do_install apt-transport-https ca-certificates sudo git
             ;;
         *)
-            packages="sudo git"
+            do_install sudo git
             ;;
 	esac
-    do_install $packages
 }
 
 do_install() {
