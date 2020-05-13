@@ -96,17 +96,17 @@ sudo_me() {
 	if [ "$user" != 'root' ]; then
 		case "$lsb_dist" in
 			ubuntu|debian|raspbian)
-				$sh_c "addgroup --system sudo" 2>/dev/null
+				$sh_c "addgroup --system sudo 2>/dev/null"
 				$sh_c "sed -i '/^# %sudo/s/^# //' /etc/sudoers"
 				$sh_c "usermod -a -G sudo $user"
 				;;
 			centos|fedora)
-				$sh_c "groupadd -r sudo" 2>/dev/null
+				$sh_c "groupadd -r sudo 2>/dev/null"
 				$sh_c "echo '%sudo ALL=(ALL) ALL' > /etc/sudoers"
 				$sh_c "useradd -G sudo $user"
 				;;
 			alpine)
-				$sh_c "addgroup -S sudo" 2>/dev/null
+				$sh_c "addgroup -S sudo 2>/dev/null"
 				$sh_c "sed -i '/^# %sudo/s/^# //' /etc/sudoers"
 				$sh_c "adduser $user sudo"
 				;;
