@@ -50,7 +50,9 @@ do_install() {
 	# Run setup for each distro accordingly
 	case "$lsb_dist" in
 		ubuntu|debian|raspbian)
-			$sh_c "apt-get update -qq"
+			if [ $(date +%s --date '-10 min') -gt $(stat -c %Y /var/cache/apt/) ]; then
+				$sh_c "apt-get update -qq"
+			fi
 			for pkg in $@; do 
 				if ! apt -qq list $pkg; then
 					$sh_c "DEBIAN_FRONTEND=noninteractive apt-get install -y $pkg"
