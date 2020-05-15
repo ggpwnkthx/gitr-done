@@ -55,7 +55,7 @@ set_sh_c() {
 
 install_prerequisites() {
 	# Run setup for each distro accordingly
-	packages="sudo git"
+	packages="sudo git ipcalc"
 	case "$pkgmgr" in
 		apt|apt-get)
 			packages="apt-transport-https ca-certificates $packages"
