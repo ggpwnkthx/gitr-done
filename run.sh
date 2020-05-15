@@ -111,9 +111,7 @@ do_install() {
 				$sh_c "$pkgmgr update -qq"
 			fi
 			for pkg in $@; do 
-				if [ ! -z "$(apt -qq list $pkg 2>/dev/null | grep -v installed | grep -v upgradable)" ]; then
-					$sh_c "DEBIAN_FRONTEND=noninteractive $pkgmgr install -y $pkg"
-				fi
+				$sh_c "DEBIAN_FRONTEND=noninteractive $pkgmgr install -y $pkg"
 			done
 			;;
 		dnf|yum)
