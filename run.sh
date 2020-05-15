@@ -65,6 +65,7 @@ install_prerequisites() {
 			;;
 	esac
 	do_install $packages
+	install_snapd
 }
 
 install_snapd() {
