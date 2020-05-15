@@ -32,7 +32,7 @@ check_environment() {
 	# Check which package manager should be used
 	pkgmgrs=apt apt-get yum dnf apk pacman zypper
 	for mgr in $pkgmgrs; do
-		if command_exists $mgr; then pkgmgr=$mgr fi
+		if command_exists $mgr; then pkgmgr=$mgr; fi
 	done
 }
 
