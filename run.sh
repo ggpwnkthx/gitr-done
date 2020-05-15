@@ -142,7 +142,7 @@ do_install() {
 			for pkg in $@; do
 				$sh_c "$pkgmgr install $pkg"
 			done
-
+			;;
 		*)
 			echo
 			echo "ERROR: Unsupported distribution '$lsb_dist'"
