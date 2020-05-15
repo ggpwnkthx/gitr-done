@@ -69,31 +69,33 @@ install_prerequisites() {
 }
 
 install_snapd() {
-	case "$lsb_dist" in
-		arch)
-			$sh_c "git clone https://aur.archlinux.org/snapd.git && cd snapd && makepkg -si"
-			$sh_c "systemctl enable --now snapd.socket"
-			$sh_c "ln -s /var/lib/snapd/snap /snap"
-			;;
-		centos|fedora)
-			do_install snapd
-			$sh_c "systemctl enable --now snapd.socket"
-			$sh_c "ln -s /var/lib/snapd/snap /snap"
-			;;
-		opensuse)
-			$sh_c "zypper addrepo --refresh https://download.opensuse.org/repositories/system:/snappy/openSUSE_Leap_15.0 snappy"
-			$sh_c "zypper --gpg-auto-import-keys refresh"
-			$sh_d "zypper dup --from snappy"
-			do_install snapd
-			$sh_c "systemctl enable snapd"
-			$sh_c "systemctl start snapd"
-			$sh_c "systemctl enable snapd.apparmor"
-			$sh_c "systemctl start snapd.apparmor"
-			;;
-		*)
-			do_install snapd
-			;;
-	esac
+	if ! command_exists snap; then
+		case "$lsb_dist" in
+			arch)
+				$sh_c "git clone https://aur.archlinux.org/snapd.git && cd snapd && makepkg -si"
+				$sh_c "systemctl enable --now snapd.socket"
+				$sh_c "ln -s /var/lib/snapd/snap /snap"
+				;;
+			centos|fedora)
+				do_install snapd
+				$sh_c "systemctl enable --now snapd.socket"
+				$sh_c "ln -s /var/lib/snapd/snap /snap"
+				;;
+			opensuse)
+				$sh_c "zypper addrepo --refresh https://download.opensuse.org/repositories/system:/snappy/openSUSE_Leap_15.0 snappy"
+				$sh_c "zypper --gpg-auto-import-keys refresh"
+				$sh_d "zypper dup --from snappy"
+				do_install snapd
+				$sh_c "systemctl enable snapd"
+				$sh_c "systemctl start snapd"
+				$sh_c "systemctl enable snapd.apparmor"
+				$sh_c "systemctl start snapd.apparmor"
+				;;
+			*)
+				do_install snapd
+				;;
+		esac
+	fi
 }
 
 do_install() {
@@ -135,6 +137,11 @@ do_install() {
 				$sh_c "$pkgmgr --non-interactive --auto-agree-with-licenses install $pkg"
 			done
 			;;
+		snap)
+			for pkg in $@; do
+				$sh_c "$pkgmgr install $pkg"
+			done
+
 		*)
 			echo
 			echo "ERROR: Unsupported distribution '$lsb_dist'"
