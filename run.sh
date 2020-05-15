@@ -96,6 +96,7 @@ install_snapd() {
 				;;
 		esac
 	fi
+	pkgmgr=snap
 }
 
 do_install() {
@@ -189,6 +190,7 @@ wrapper() {
 	check_environment
 	set_sh_c
 	install_prerequisites
+	do_install netplan docker
 	sudo_me
 	gitr_done $@
 }
