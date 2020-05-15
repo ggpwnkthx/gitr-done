@@ -14,34 +14,26 @@ check_environment() {
 	# Returning an empty string here should be alright since the
 	# case statements don't act unless you provide an actual value
 	
+	# Check distribution
 	lsb_dist="$(echo "$lsb_dist" | tr '[:upper:]' '[:lower:]')"
-
-	# Check which package manager should be used
+	# Determin if forked
 	case "$lsb_dist" in
-		ubuntu|debian|raspbian)
-			if command_exists apt-get; then
-				pkgmgr="apt-get"
-			else
-				pkgmgr="apt"
-			fi
+		ubuntu|kubuntu|manjaro|mint|raspian)
+			fork_of="debian"
 			;;
-		centos|fedora)
-			if command_exists dnf; then
-				pkgmgr="dnf"
-			else
-				pkgmgr="yum"
-			fi
-			;;
-		alpine)
-			pkgmgr="apk"
+		arch|centos|fedora)
+			fork_of="redhat"
 			;;
 		*)
-			echo
-			echo "ERROR: Unsupported distribution '$lsb_dist'"
-			echo
-			exit 1
+			fork_of=$lsb_dist
 			;;
 	esac
+
+	# Check which package manager should be used
+	pkgmgrs=apt apt-get yum dnf apk pacman
+	for mgr in $pkgmgrs; do
+		if command_exists $mgr; then pkgmgr=$mgr fi
+	done
 }
 
 set_sh_c() {
@@ -63,18 +55,47 @@ set_sh_c() {
 
 install_prerequisites() {
 	# Run setup for each distro accordingly
-	packages="sudo git expect"
+	packages="sudo git"
 	case "$pkgmgr" in
 		apt|apt-get)
 			packages="apt-transport-https ca-certificates $packages"
+			;;
+		dnf|yum)
+			packages="epel-release $packages"
 			;;
 	esac
 	do_install $packages
 }
 
+install_snapd() {
+	case "$lsb_dist" in
+		arch)
+			$sh_c "git clone https://aur.archlinux.org/snapd.git && cd snapd && makepkg -si"
+			$sh_c "systemctl enable --now snapd.socket"
+			$sh_c "ln -s /var/lib/snapd/snap /snap"
+			;;
+		centos|fedora)
+			do_install snapd
+			$sh_c "systemctl enable --now snapd.socket"
+			$sh_c "ln -s /var/lib/snapd/snap /snap"
+			;;
+		*)
+			do_install snapd
+			;;
+	esac
+}
+
 do_install() {
 	# Run setup for each distro accordingly
 	case "$pkgmgr" in
+		apk)
+			$sh_c "$pkgmgr update"
+			for pkg in $@; do 
+				if ! $pkgmgr search -v $pkg; then
+					$sh_c "$pkgmgr add $pkg"; 
+				fi
+			done
+			;;
 		apt|apt-get)
 			if [ $(date +%s --date '-10 min') -gt $(stat -c %Y /var/cache/apt/) ]; then
 				$sh_c "$pkgmgr update -qq"
@@ -89,15 +110,20 @@ do_install() {
 			for pkg in $@; do
 				if ! $pkgmgr list installed $pkg; then
 					$sh_c "$pkgmgr install -y $pkg"
+					if $pkg -eq epel-release; then
+						$sh_c "$pkgmgr update"
+					fi
 				fi
 			done
 			;;
-		apk)
-			$sh_c "$pkgmgr update"
-			for pkg in $@; do 
-				if ! $pkgmgr search -v $pkg; then
-					$sh_c "$pkgmgr add $pkg"; 
-				fi
+		pacman)
+			for pkg in $@; do
+				$sh_c "$pkgmgr -Sy $pkg"
+			done
+			;;
+		zypper)
+			for pkg in $@; do
+				$sh_c "$pkgmgr --non-interactive --auto-agree-with-licenses install $pkg"
 			done
 			;;
 		*)
@@ -111,21 +137,21 @@ do_install() {
 
 sudo_me() {
 	if [ "$user" != 'root' ]; then
-		case "$lsb_dist" in
-			ubuntu|debian|raspbian)
-				$sh_c "addgroup --system sudo 2>/dev/null"
-				$sh_c "sed -i '/^# %sudo/s/^# //' /etc/sudoers"
-				$sh_c "usermod -a -G sudo $user"
-				;;
-			centos|fedora)
-				$sh_c "groupadd -r sudo 2>/dev/null"
-				$sh_c "echo '%sudo ALL=(ALL) ALL' > /etc/sudoers"
-				$sh_c "useradd -G sudo $user"
-				;;
+		case "$fork_of" in
 			alpine)
 				$sh_c "addgroup -S sudo 2>/dev/null"
 				$sh_c "sed -i '/^# %sudo/s/^# //' /etc/sudoers"
 				$sh_c "adduser $user sudo"
+				;;
+			debian)
+				$sh_c "addgroup --system sudo 2>/dev/null"
+				$sh_c "sed -i '/^# %sudo/s/^# //' /etc/sudoers"
+				$sh_c "usermod -a -G sudo $user"
+				;;
+			redhat)
+				$sh_c "groupadd -r sudo 2>/dev/null"
+				$sh_c "echo '%sudo ALL=(ALL) ALL' > /etc/sudoers"
+				$sh_c "useradd -G sudo $user"
 				;;
 		esac
 	fi
