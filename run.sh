@@ -18,11 +18,11 @@ check_environment() {
 	lsb_dist="$(echo "$lsb_dist" | tr '[:upper:]' '[:lower:]')"
 	# Determin if forked
 	case "$lsb_dist" in
-		ubuntu|kubuntu|manjaro|mint|raspian)
+		"elementary os"|neon|linuxmint|ubuntu|kubuntu|manjaro|raspian)
 			fork_of="debian"
 			;;
 		arch|centos|fedora)
-			fork_of="redhat"
+			fork_of="rhel"
 			;;
 		*)
 			fork_of=$lsb_dist
@@ -30,7 +30,7 @@ check_environment() {
 	esac
 
 	# Check which package manager should be used
-	pkgmgrs=apt apt-get yum dnf apk pacman
+	pkgmgrs=apt apt-get yum dnf apk pacman zypper
 	for mgr in $pkgmgrs; do
 		if command_exists $mgr; then pkgmgr=$mgr fi
 	done
@@ -78,6 +78,16 @@ install_snapd() {
 			do_install snapd
 			$sh_c "systemctl enable --now snapd.socket"
 			$sh_c "ln -s /var/lib/snapd/snap /snap"
+			;;
+		opensuse)
+			$sh_c "zypper addrepo --refresh https://download.opensuse.org/repositories/system:/snappy/openSUSE_Leap_15.0 snappy"
+			$sh_c "zypper --gpg-auto-import-keys refresh"
+			$sh_d "zypper dup --from snappy"
+			do_install snapd
+			$sh_c "systemctl enable snapd"
+			$sh_c "systemctl start snapd"
+			$sh_c "systemctl enable snapd.apparmor"
+			$sh_c "systemctl start snapd.apparmor"
 			;;
 		*)
 			do_install snapd
@@ -148,7 +158,7 @@ sudo_me() {
 				$sh_c "sed -i '/^# %sudo/s/^# //' /etc/sudoers"
 				$sh_c "usermod -a -G sudo $user"
 				;;
-			redhat)
+			rhel)
 				$sh_c "groupadd -r sudo 2>/dev/null"
 				$sh_c "echo '%sudo ALL=(ALL) ALL' > /etc/sudoers"
 				$sh_c "useradd -G sudo $user"
