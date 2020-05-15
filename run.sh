@@ -15,6 +15,33 @@ check_environment() {
 	# case statements don't act unless you provide an actual value
 	
 	lsb_dist="$(echo "$lsb_dist" | tr '[:upper:]' '[:lower:]')"
+
+	# Check which package manager should be used
+	case "$lsb_dist" in
+		ubuntu|debian|raspbian)
+			if command_exists apt-get; then
+				pkgmgr="apt-get"
+			else
+				pkgmgr="apt"
+			fi
+			;;
+		centos|fedora)
+			if command_exists dnf; then
+				pkgmgr="dnf"
+			else
+				pkgmgr="yum"
+			fi
+			;;
+		alpine)
+			pkgmgr="apk"
+			;;
+		*)
+			echo
+			echo "ERROR: Unsupported distribution '$lsb_dist'"
+			echo
+			exit 1
+			;;
+	esac
 }
 
 set_sh_c() {
@@ -36,50 +63,40 @@ set_sh_c() {
 
 install_prerequisites() {
 	# Run setup for each distro accordingly
-	case "$lsb_dist" in
-		ubuntu|debian|raspbian)
-			do_install apt-transport-https ca-certificates sudo git
-			;;
-		*)
-			do_install sudo git
+	packages="sudo git expect"
+	case "$pkgmgr" in
+		apt|apt-get)
+			packages="apt-transport-https ca-certificates $packages"
 			;;
 	esac
+	do_install $packages
 }
 
 do_install() {
 	# Run setup for each distro accordingly
-	case "$lsb_dist" in
-		ubuntu|debian|raspbian)
+	case "$pkgmgr" in
+		apt|apt-get)
 			if [ $(date +%s --date '-10 min') -gt $(stat -c %Y /var/cache/apt/) ]; then
-				$sh_c "apt-get update -qq"
+				$sh_c "$pkgmgr update -qq"
 			fi
 			for pkg in $@; do 
 				if ! apt -qq list $pkg; then
-					$sh_c "DEBIAN_FRONTEND=noninteractive apt-get install -y $pkg"
+					$sh_c "DEBIAN_FRONTEND=noninteractive $pkgmgr install -y $pkg"
 				fi
 			done
 			;;
-		centos|fedora)
-			if command_exists dnf; then
-				for pkg in $@; do
-					if ! dnf list installed $pkg; then
-						$sh_c "dnf install -y $pkg"
-					fi
-				done
-			else
-				for pkg in $@; do
-					if ! yum list installed $pkg; then
-						$sh_c "yum install -y $pkg"
-					fi
-				done
-			fi
-			
+		dnf|yum)
+			for pkg in $@; do
+				if ! $pkgmgr list installed $pkg; then
+					$sh_c "$pkgmgr install -y $pkg"
+				fi
+			done
 			;;
-		alpine)
-			$sh_c "apk update"
+		apk)
+			$sh_c "$pkgmgr update"
 			for pkg in $@; do 
-				if ! apk search -v $pkg; then
-					$sh_c "apk add $pkg"; 
+				if ! $pkgmgr search -v $pkg; then
+					$sh_c "$pkgmgr add $pkg"; 
 				fi
 			done
 			;;
