@@ -52,7 +52,6 @@ set_sh_c() {
 			exit 1
 		fi
 	fi
-	sh_c="set -x; $sh_c"
 }
 
 install_prerequisites() {
@@ -82,26 +81,41 @@ do_install() {
 			$sh_c "$pkgmgr update"
 			for pkg in $@; do 
 				if ! $pkgmgr search -v $pkg; then
-					$sh_c "$pkgmgr add $pkg"; 
+					(
+						set -x
+						$sh_c "$pkgmgr add $pkg"; 
+					)
 				fi
 			done
 			;;
 		# Debian
 		apt|apt-get)
 			if [ $(date +%s --date '-10 min') -gt $(stat -c %Y /var/cache/apt/) ]; then
-				$sh_c "$pkgmgr update -qq"
+				(
+					set -x
+					$sh_c "$pkgmgr update -qq"
+				)
 			fi
 			for pkg in $@; do 
-				$sh_c "DEBIAN_FRONTEND=noninteractive $pkgmgr install -y $pkg"
+				(
+					set -x
+					$sh_c "DEBIAN_FRONTEND=noninteractive $pkgmgr install -y $pkg"
+				)
 			done
 			;;
 		# RHEL
 		dnf|yum)
 			for pkg in $@; do
 				if ! $pkgmgr list installed $pkg; then
-					$sh_c "$pkgmgr install -y $pkg"
+					(
+						set -x
+						$sh_c "$pkgmgr install -y $pkg"
+					)
 					if $pkg -eq epel-release; then
-						$sh_c "$pkgmgr update"
+						(
+							set -x
+							$sh_c "$pkgmgr update"
+						)
 					fi
 				fi
 			done
@@ -109,13 +123,19 @@ do_install() {
 		# Arch
 		pacman)
 			for pkg in $@; do
-				$sh_c "$pkgmgr -Sy $pkg"
+				(
+					set -x
+					$sh_c "$pkgmgr -Sy $pkg"
+				)
 			done
 			;;
 		# openSUSE
 		zypper)
 			for pkg in $@; do
-				$sh_c "$pkgmgr --non-interactive --auto-agree-with-licenses install $pkg"
+				(
+					set -x
+					$sh_c "$pkgmgr --non-interactive --auto-agree-with-licenses install $pkg"
+				)
 			done
 			;;
 		*)
@@ -131,19 +151,28 @@ sudo_me() {
 	if [ "$user" != 'root' ]; then
 		case "$fork_of" in
 			alpine)
-				$sh_c "addgroup -S sudo 2>/dev/null"
-				$sh_c "sed -i '/^# %sudo/s/^# //' /etc/sudoers"
-				$sh_c "adduser $user sudo"
+				(
+					set -x
+					$sh_c "addgroup -S sudo 2>/dev/null"
+					$sh_c "sed -i '/^# %sudo/s/^# //' /etc/sudoers"
+					$sh_c "adduser $user sudo"
+				)
 				;;
 			debian)
-				$sh_c "addgroup --system sudo 2>/dev/null"
-				$sh_c "sed -i '/^# %sudo/s/^# //' /etc/sudoers"
-				$sh_c "usermod -a -G sudo $user"
+				(
+					set -x
+					$sh_c "addgroup --system sudo 2>/dev/null"
+					$sh_c "sed -i '/^# %sudo/s/^# //' /etc/sudoers"
+					$sh_c "usermod -a -G sudo $user"
+				)
 				;;
 			rhel)
-				$sh_c "groupadd -r sudo 2>/dev/null"
-				$sh_c "echo '%sudo ALL=(ALL) ALL' > /etc/sudoers"
-				$sh_c "useradd -G sudo $user"
+				(
+					set -x
+					$sh_c "groupadd -r sudo 2>/dev/null"
+					$sh_c "echo '%sudo ALL=(ALL) ALL' > /etc/sudoers"
+					$sh_c "useradd -G sudo $user"
+				)
 				;;
 		esac
 	fi
@@ -151,13 +180,16 @@ sudo_me() {
 
 gitr_done() {
 	if [ -n "$1" ]; then
-		sudo mkdir -p /usr/src
-		cd /usr/src
-		repo=$(sudo git clone $1 2>&1 | awk -F "'" '{print $2}')
-		sudo chown -R $(whoami):$(whoami) /usr/src/$repo
-		chmod +x /usr/src/$repo/$2
-		args=$(echo $@ | awk '{$1="";$2="";print $0}')
-		/usr/src/$repo/$2 $args
+		(
+			set -x
+			sudo mkdir -p /usr/src
+			cd /usr/src
+			repo=$(sudo git clone $1 2>&1 | awk -F "'" '{print $2}')
+			sudo chown -R $(whoami):$(whoami) /usr/src/$repo
+			chmod +x /usr/src/$repo/$2
+			args=$(echo $@ | awk '{$1="";$2="";print $0}')
+			/usr/src/$repo/$2 $args
+		)
 	fi
 }
 
