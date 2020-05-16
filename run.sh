@@ -96,7 +96,6 @@ install_snapd() {
 				;;
 		esac
 	fi
-	pkgmgr=snap
 }
 
 do_install() {
@@ -136,11 +135,6 @@ do_install() {
 		zypper)
 			for pkg in $@; do
 				$sh_c "$pkgmgr --non-interactive --auto-agree-with-licenses install $pkg"
-			done
-			;;
-		snap)
-			for pkg in $@; do
-				$sh_c "$pkgmgr install $pkg"
 			done
 			;;
 		*)
