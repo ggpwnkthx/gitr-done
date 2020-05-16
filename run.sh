@@ -83,7 +83,7 @@ do_install() {
 				if ! $pkgmgr search -v $pkg; then
 					(
 						set -x
-						$sh_c "$pkgmgr add $pkg"; 
+						$sh_c "$pkgmgr add $pkg >/dev/null"; 
 					)
 				fi
 			done
@@ -93,13 +93,13 @@ do_install() {
 			if [ $(date +%s --date '-10 min') -gt $(stat -c %Y /var/cache/apt/) ]; then
 				(
 					set -x
-					$sh_c "$pkgmgr update -qq"
+					$sh_c "$pkgmgr update -qq >/dev/null"
 				)
 			fi
 			for pkg in $@; do 
 				(
 					set -x
-					$sh_c "DEBIAN_FRONTEND=noninteractive $pkgmgr install -y $pkg"
+					$sh_c "DEBIAN_FRONTEND=noninteractive $pkgmgr install -y $pkg >/dev/null"
 				)
 			done
 			;;
@@ -109,12 +109,12 @@ do_install() {
 				if ! $pkgmgr list installed $pkg; then
 					(
 						set -x
-						$sh_c "$pkgmgr install -y $pkg"
+						$sh_c "$pkgmgr install -y $pkg >/dev/null"
 					)
 					if $pkg -eq epel-release; then
 						(
 							set -x
-							$sh_c "$pkgmgr update"
+							$sh_c "$pkgmgr update >/dev/null"
 						)
 					fi
 				fi
@@ -125,7 +125,7 @@ do_install() {
 			for pkg in $@; do
 				(
 					set -x
-					$sh_c "$pkgmgr -Sy $pkg"
+					$sh_c "$pkgmgr -Sy $pkg >/dev/null"
 				)
 			done
 			;;
@@ -134,7 +134,7 @@ do_install() {
 			for pkg in $@; do
 				(
 					set -x
-					$sh_c "$pkgmgr --non-interactive --auto-agree-with-licenses install $pkg"
+					$sh_c "$pkgmgr --non-interactive --auto-agree-with-licenses install $pkg >/dev/null"
 				)
 			done
 			;;
@@ -180,14 +180,14 @@ sudo_me() {
 
 gitr_done() {
 	if [ -n "$1" ]; then
+		sudo mkdir -p /usr/src
+		cd /usr/src
+		repo=$(sudo git clone $1 2>&1 | awk -F "'" '{print $2}')
+		sudo chown -R $(whoami):$(whoami) /usr/src/$repo
+		chmod +x /usr/src/$repo/$2
+		args=$(echo $@ | awk '{$1="";$2="";print $0}')
 		(
 			set -x
-			sudo mkdir -p /usr/src
-			cd /usr/src
-			repo=$(sudo git clone $1 2>&1 | awk -F "'" '{print $2}')
-			sudo chown -R $(whoami):$(whoami) /usr/src/$repo
-			chmod +x /usr/src/$repo/$2
-			args=$(echo $@ | awk '{$1="";$2="";print $0}')
 			/usr/src/$repo/$2 $args
 		)
 	fi
