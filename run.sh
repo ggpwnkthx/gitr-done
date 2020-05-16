@@ -55,7 +55,7 @@ set_sh_c() {
 
 install_prerequisites() {
 	# Run setup for each distro accordingly
-	packages="sudo git ipcalc"
+	packages="sudo git docker"
 	case "$pkgmgr" in
 		apt|apt-get)
 			packages="apt-transport-https ca-certificates $packages"
@@ -65,42 +65,12 @@ install_prerequisites() {
 			;;
 	esac
 	do_install $packages
-	install_snapd
-}
-
-install_snapd() {
-	if ! command_exists snap; then
-		case "$lsb_dist" in
-			arch)
-				$sh_c "git clone https://aur.archlinux.org/snapd.git && cd snapd && makepkg -si"
-				$sh_c "systemctl enable --now snapd.socket"
-				$sh_c "ln -s /var/lib/snapd/snap /snap"
-				;;
-			centos|fedora)
-				do_install snapd
-				$sh_c "systemctl enable --now snapd.socket"
-				$sh_c "ln -s /var/lib/snapd/snap /snap"
-				;;
-			opensuse)
-				$sh_c "zypper addrepo --refresh https://download.opensuse.org/repositories/system:/snappy/openSUSE_Leap_15.0 snappy"
-				$sh_c "zypper --gpg-auto-import-keys refresh"
-				$sh_d "zypper dup --from snappy"
-				do_install snapd
-				$sh_c "systemctl enable snapd"
-				$sh_c "systemctl start snapd"
-				$sh_c "systemctl enable snapd.apparmor"
-				$sh_c "systemctl start snapd.apparmor"
-				;;
-			*)
-				do_install snapd
-				;;
-		esac
-	fi
 }
 
 do_install() {
 	# Run setup for each distro accordingly
 	case "$pkgmgr" in
+		# Alpine
 		apk)
 			$sh_c "$pkgmgr update"
 			for pkg in $@; do 
@@ -109,6 +79,7 @@ do_install() {
 				fi
 			done
 			;;
+		# Debian
 		apt|apt-get)
 			if [ $(date +%s --date '-10 min') -gt $(stat -c %Y /var/cache/apt/) ]; then
 				$sh_c "$pkgmgr update -qq"
@@ -117,6 +88,7 @@ do_install() {
 				$sh_c "DEBIAN_FRONTEND=noninteractive $pkgmgr install -y $pkg"
 			done
 			;;
+		# RHEL
 		dnf|yum)
 			for pkg in $@; do
 				if ! $pkgmgr list installed $pkg; then
@@ -127,11 +99,13 @@ do_install() {
 				fi
 			done
 			;;
+		# Arch
 		pacman)
 			for pkg in $@; do
 				$sh_c "$pkgmgr -Sy $pkg"
 			done
 			;;
+		# openSUSE
 		zypper)
 			for pkg in $@; do
 				$sh_c "$pkgmgr --non-interactive --auto-agree-with-licenses install $pkg"
@@ -188,6 +162,5 @@ wrapper() {
 	gitr_done $@
 }
 
-# wrapped up in a function so that we have some protection against only getting
-# half the file during "curl | sh"
+# wrapped up in a function so that we have some protection against only getting half the file
 wrapper $@
