@@ -70,7 +70,9 @@ install_prerequisites() {
 }
 
 install_docker() {
-	curl -fsSL https://get.docker.com -o - | sh - >/dev/null
+	if ! command_exists docker; then
+		curl -fsSL https://get.docker.com -o - | sh - >/dev/null
+	fi
 }
 
 do_install() {
