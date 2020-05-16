@@ -55,7 +55,7 @@ set_sh_c() {
 
 install_prerequisites() {
 	# Run setup for each distro accordingly
-	packages="sudo git docker"
+	packages="sudo git curl"
 	case "$pkgmgr" in
 		apt|apt-get)
 			packages="apt-transport-https ca-certificates $packages"
@@ -65,6 +65,11 @@ install_prerequisites() {
 			;;
 	esac
 	do_install $packages
+	install_docker
+}
+
+install_docker() {
+	curl -fsSL https://get.docker.com -o - | sh - >/dev/null
 }
 
 do_install() {

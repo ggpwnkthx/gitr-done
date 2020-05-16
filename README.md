@@ -1,5 +1,5 @@
 # gitr-done
-This is just a simple pre-run script that makes sure sudo, git, and snapd are installed based on the detected Linux distribution, then it clones a given git repository and executes a given script in that cloned repository. This is to help create an environment that is mostly predictable for automation scripts.
+This is just a simple pre-run script that makes sure sudo, git, and docker are installed based on the detected Linux distribution, then it clones the given git repository and executes a given script in that cloned repository. This is to help create an environment that is mostly predictable for automation scripts.
 
 # Usage
 Use -s to pass arguments to the pre-run script. The first argument is the URL to the git repository. The second agrument is the reletive path to the initilization script in the cloned repository. All arguments after the first two will be passed through to the initilization script.
