@@ -1,5 +1,4 @@
 #!/bin/sh
-set -x
 
 command_exists() {
 	command -v "$@" > /dev/null 2>&1
@@ -53,6 +52,7 @@ set_sh_c() {
 			exit 1
 		fi
 	fi
+	sh_c="set -x; $sh_c"
 }
 
 install_prerequisites() {
