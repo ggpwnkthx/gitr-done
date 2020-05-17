@@ -186,12 +186,12 @@ gitr_done() {
 		cd /usr/src
 		repo=$(sudo git clone $1 2>&1 | awk -F "'" '{print $2}')
 		sudo chown -R $(whoami):$(whoami) /usr/src/$repo
-		cd /usr/src/$repo
-		git pull
-		chmod +x $2
 		args=$(echo $@ | awk '{$1="";$2="";print $0}')
 		(
 			set -x
+			cd /usr/src/$repo
+			git pull
+			chmod +x $2
 			./$2 $args
 		)
 	fi
