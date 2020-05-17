@@ -190,6 +190,8 @@ gitr_done() {
 		(
 			set -x
 			cd /usr/src/$repo
+			git reset --hard HEAD
+			git clean -f -d
 			git pull
 			chmod +x $2
 			./$2 $args
