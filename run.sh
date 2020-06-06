@@ -56,7 +56,7 @@ set_sh_c() {
 
 install_prerequisites() {
 	# Run setup for each distro accordingly
-	packages="sudo git curl"
+	packages="sudo git curl fuse"
 	case "$pkgmgr" in
 		apt|apt-get)
 			packages="apt-transport-https ca-certificates $packages"
