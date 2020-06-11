@@ -56,25 +56,25 @@ set_sh_c() {
 
 install_prerequisites() {
 	# Run setup for each distro accordingly
-	packages="sudo git curl"
+	packages="sudo git curl fuse"
 	case "$pkgmgr" in
 		apk)
 			echo "@edge http://nl.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories 
 			echo "@edgetesting http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
 			echo "@edgecommunity http://nl.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
-			packages="$packages fuse3@edge s3fs-fuse@edgetesting"
+			packages="$packages s3fs-fuse@edgetesting"
 		;;
 		apt|apt-get)
-			packages="apt-transport-https ca-certificates $packages fuse3 s3fs"
+			packages="apt-transport-https ca-certificates $packages s3fs"
 		;;
 		dnf|yum)
-			packages="epel-release $packages fuse3 s3fs-fuse"
+			packages="epel-release $packages s3fs-fuse"
 		;;
 		pacman)
-			packages="$packages fuse3 s3fs-fuse"
+			packages="$packages s3fs-fuse"
 		;;
 		zypper)
-			packages="$packages fuse3 s3fs"
+			packages="$packages s3fs"
 		;;
 	esac
 	do_install $packages
