@@ -56,7 +56,7 @@ set_sh_c() {
 
 install_prerequisites() {
 	# Run setup for each distro accordingly
-	packages="sudo git curl fuse"
+	packages="sudo git curl jq fuse"
 	case "$pkgmgr" in
 		apk)
 			echo "@edge http://nl.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories 
