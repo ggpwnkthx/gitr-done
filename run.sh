@@ -62,19 +62,19 @@ install_prerequisites() {
 			echo "@edge http://nl.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories 
 			echo "@edgetesting http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
 			echo "@edgecommunity http://nl.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
-			packages="$packages s3fs-fuse@edgetesting"
+			packages="$packages"
 		;;
 		apt|apt-get)
-			packages="apt-transport-https ca-certificates $packages s3fs"
+			packages="apt-transport-https ca-certificates $packages"
 		;;
 		dnf|yum)
-			packages="epel-release $packages s3fs-fuse"
+			packages="epel-release $packages"
 		;;
 		pacman)
-			packages="$packages s3fs-fuse"
+			packages="$packages"
 		;;
 		zypper)
-			packages="$packages s3fs"
+			packages="$packages"
 		;;
 	esac
 	do_install $packages
