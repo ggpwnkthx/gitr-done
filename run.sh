@@ -5,6 +5,7 @@ command_exists() {
 }
 
 check_environment() {
+	echo $0 "|" $@
 	# If running from stdin, download to file and rerun self
 	if [ "$0" = "-s" ]; then
 		url=https://raw.githubusercontent.com/ggpwnkthx/gitr-done/master/run.sh
