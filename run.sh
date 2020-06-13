@@ -88,7 +88,7 @@ add_pkgmgr_repos() {
 					echo @edgetesting http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories
 				)
 			fi
-			if [ -z "$(grep '^@edgetesting ' /etc/apk/repositories)" ]; then
+			if [ -z "$(grep '^@edgecommunity ' /etc/apk/repositories)" ]; then
 				(
 					set -x
 					echo @edgetesting http://nl.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories
@@ -128,7 +128,13 @@ install_docker() {
 		sh -c "$(curl -fsSL https://get.docker.com -o -)"
 	fi
 	if ! command_exists docker; then
-		do_install docker
+		docker="docker"
+		case "$pkgmgr" in
+			apk)
+				docker="docker@edgecommunity"
+			;;
+		esac
+		do_install $docker
 	fi
 }
 
