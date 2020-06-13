@@ -55,7 +55,7 @@ run_privileged() {
 		(
 			set -x
 			url=https://raw.githubusercontent.com/ggpwnkthx/gitr-done/master/run.sh
-			$sh_c "$(curl -sSL $url || wget $url -O -)" -s $@
+			$sh_c "$(curl -sSL $url || wget $url -O -) -s $@"
 		)
 		exit
 	fi
