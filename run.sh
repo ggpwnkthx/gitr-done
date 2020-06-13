@@ -55,9 +55,9 @@ run_privileged() {
 	if [ "$user" != 'root' ]; then
 		echo "Not running as a privileged user. Attempting to restart with authority..."
 		if command_exists sudo; then
-			sudo -E $0 $@
+			sudo -E $0 $user $@
 		elif command_exists su; then
-			su -c "$0 -s \"$@\""
+			su -c "$0 -s \"$user $@\""
 		else
 			cat >&2 <<-'EOF'
 			Error: this installer needs the ability to run commands as root.
@@ -201,55 +201,53 @@ do_install() {
 }
 
 sudo_me() {
-	if [ "$user" != 'root' ]; then
-		case "$fork_of" in
-			alpine)
-				(
-					set -x
-					addgroup -S sudo 2>/dev/null
-					adduser $user sudo
-				)
-			;;
-			debian)
-				(
-					set -x
-					addgroup --system sudo 2>/dev/null
-					usermod -a -G sudo $user
-				)
-			;;
-			rhel)
-				(
-					set -x
-					groupadd -r sudo 2>/dev/null
-					useradd -G sudo $user
-				)
-			;;
-		esac
-		
-		sed -i '/^# %sudo/s/^# //' /etc/sudoers
-		if [ -z "$(grep '^%sudo ALL=(ALL) ALL' /etc/sudoers)" ]; then
+	case "$fork_of" in
+		alpine)
 			(
 				set -x
-				echo '%sudo ALL=(ALL) ALL' > /etc/sudoers
+				addgroup -S sudo 2>/dev/null
+				adduser $1 sudo
 			)
-		fi
+		;;
+		debian)
+			(
+				set -x
+				addgroup --system sudo 2>/dev/null
+				usermod -a -G sudo $1
+			)
+		;;
+		rhel)
+			(
+				set -x
+				groupadd -r sudo 2>/dev/null
+				useradd -G sudo $1
+			)
+		;;
+	esac
+	
+	sed -i '/^# %sudo/s/^# //' /etc/sudoers
+	if [ -z "$(grep '^%sudo ALL=(ALL) ALL' /etc/sudoers)" ]; then
+		(
+			set -x
+			echo '%sudo ALL=(ALL) ALL' > /etc/sudoers
+		)
 	fi
 }
 
 gitr_done() {
-	if [ ! -z "$1" ]; then
+	if [ ! -z "$2" ]; then
 		mkdir -p /usr/src
 		cd /usr/src
-		repo=$(sudo git clone $1 2>&1 | awk -F "'" '{print $2}')
-		args=$(echo $@ | awk '{$1="";$2="";print $0}')
+		repo=$(sudo git clone $2 2>&1 | awk -F "'" '{print $2}')
+		args=$(echo $@ | awk '{$1="";$2="";$3="";print $0}')
 		(
 			set -x
 			cd /usr/src/$repo
 			git reset --hard HEAD
 			git clean -f -d
 			git pull
-			chmod +x $2
-			./$2 $args
+			chmod +x $3
+			./$3 $args
 		)
 	fi
 }
@@ -258,7 +256,7 @@ wrapper() {
 	check_environment
 	run_privileged $@
 	install_prerequisites
-	sudo_me
+	sudo_me $1
 	gitr_done $@
 }
 
