@@ -51,7 +51,7 @@ run_privileged() {
 			EOF
 			exit 1
 		fi
-		$sh_c $@ $@
+		$sh_c "$@ $@"
 		exit
 	fi
 }
