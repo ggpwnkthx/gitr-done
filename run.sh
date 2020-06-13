@@ -58,7 +58,7 @@ run_privileged() {
 		if command_exists su; then
 			(
 				set -x
-				su --preserve-environment -c "$run" root
+				su -c "$run" root
 			)
 		elif command_exists sudo; then
 			sudo -E "$run"
@@ -244,15 +244,15 @@ gitr_done() {
 		mkdir -p /usr/src
 		cd /usr/src
 		repo=$(git clone $2 2>&1 | awk -F "'" '{print $2}')
-		chown -R $1:$1 /usr/src/$repo
 		args=$(echo $@ | awk '{$1="";$2="";$3="";print $0}')
 		(
 			set -x
 			cd /usr/src/$repo
-			su --preserve-environment -c "git reset --hard HEAD" $1
-			su --preserve-environment -c "git clean -f -d" $1
-			su --preserve-environment -c "git pull" $1
+			su -c "git reset --hard HEAD"
+			su -c "git clean -f -d"
+			su -c "git pull"
 			chmod +x $3
+			chown -R $1:$1 /usr/src/$repo
 			su --preserve-environment -c "./$3 $args" $1
 		)
 	fi
