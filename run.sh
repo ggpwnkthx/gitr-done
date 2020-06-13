@@ -56,7 +56,6 @@ run_privileged() {
 			exit 1
 		fi
 		
-		rm gitr-done
 		exit
 	fi
 }
