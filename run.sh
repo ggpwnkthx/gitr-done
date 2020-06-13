@@ -69,6 +69,7 @@ run_privileged() {
 			EOF
 			exit 1
 		fi
+		exit
 	fi
 }
 
