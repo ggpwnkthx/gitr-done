@@ -37,7 +37,7 @@ check_environment() {
 	done
 }
 
-set_sh_c() {
+run_privileged() {
 	sh_c='sh -c'
 	if [ "$user" != 'root' ]; then
 		if command_exists sudo; then
@@ -51,17 +51,42 @@ set_sh_c() {
 			EOF
 			exit 1
 		fi
+		$sh_c $@ $@
+		exit
 	fi
 }
 
+add_pkgmgr_repos() {
+	case "$pkgmgr" in
+		apk)
+			if [ -z "$(grep '^@edge ' /etc/apk/repositories)" ]; then
+				(
+					set -x
+					echo @edge http://nl.alpinelinux.org/alpine/edge/main >> /etc/apk/repositories
+				)
+			fi
+			if [ -z "$(grep '^@edgetesting ' /etc/apk/repositories)" ]; then
+				(
+					set -x
+					echo @edgetesting http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories
+				)
+			fi
+			if [ -z "$(grep '^@edgetesting ' /etc/apk/repositories)" ]; then
+				(
+					set -x
+					echo @edgetesting http://nl.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories
+				)
+			fi
+		;;
+	esac
+}
+
 install_prerequisites() {
+	add_pkgmgr_repos
 	# Run setup for each distro accordingly
 	packages="sudo git curl jq fuse"
 	case "$pkgmgr" in
 		apk)
-			$sh_c "echo @edge http://nl.alpinelinux.org/alpine/edge/main >> /etc/apk/repositories"
-			$sh_c "echo @edgetesting http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories"
-			$sh_c "echo @edgecommunity http://nl.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories"
 			packages="$packages"
 		;;
 		apt|apt-get)
@@ -92,12 +117,15 @@ do_install() {
 	case "$pkgmgr" in
 		# Alpine
 		apk)
-			$sh_c "$pkgmgr update"
+			(
+				set -x
+				$pkgmgr update
+			)
 			for pkg in $@; do 
 				if ! $pkgmgr search -v $pkg; then
 					(
 						set -x
-						$sh_c "$pkgmgr add $pkg >/dev/null"; 
+						$pkgmgr add $pkg >/dev/null
 					)
 				fi
 			done
@@ -107,13 +135,13 @@ do_install() {
 			if [ $(date +%s --date '-10 min') -gt $(stat -c %Y /var/cache/apt/) ]; then
 				(
 					set -x
-					$sh_c "$pkgmgr update -qq >/dev/null"
+					$pkgmgr update -qq >/dev/null
 				)
 			fi
 			for pkg in $@; do 
 				(
 					set -x
-					$sh_c "DEBIAN_FRONTEND=noninteractive $pkgmgr install -y $pkg >/dev/null"
+					DEBIAN_FRONTEND=noninteractive $pkgmgr install -y $pkg >/dev/null
 				)
 			done
 			;;
@@ -123,12 +151,12 @@ do_install() {
 				if ! $pkgmgr list installed $pkg; then
 					(
 						set -x
-						$sh_c "$pkgmgr install -y $pkg >/dev/null"
+						$pkgmgr install -y $pkg >/dev/null
 					)
 					if $pkg -eq epel-release; then
 						(
 							set -x
-							$sh_c "$pkgmgr update >/dev/null"
+							$pkgmgr update >/dev/null
 						)
 					fi
 				fi
@@ -139,7 +167,7 @@ do_install() {
 			for pkg in $@; do
 				(
 					set -x
-					$sh_c "$pkgmgr -Sy $pkg >/dev/null"
+					$pkgmgr -Sy $pkg >/dev/null
 				)
 			done
 			;;
@@ -148,7 +176,7 @@ do_install() {
 			for pkg in $@; do
 				(
 					set -x
-					$sh_c "$pkgmgr --non-interactive --auto-agree-with-licenses install $pkg >/dev/null"
+					$pkgmgr --non-interactive --auto-agree-with-licenses install $pkg >/dev/null
 				)
 			done
 			;;
@@ -167,25 +195,25 @@ sudo_me() {
 			alpine)
 				(
 					set -x
-					$sh_c "addgroup -S sudo 2>/dev/null"
-					$sh_c "sed -i '/^# %sudo/s/^# //' /etc/sudoers"
-					$sh_c "adduser $user sudo"
+					addgroup -S sudo 2>/dev/null
+					sed -i '/^# %sudo/s/^# //' /etc/sudoers
+					adduser $user sudo
 				)
 				;;
 			debian)
 				(
 					set -x
-					$sh_c "addgroup --system sudo 2>/dev/null"
-					$sh_c "sed -i '/^# %sudo/s/^# //' /etc/sudoers"
-					$sh_c "usermod -a -G sudo $user"
+					addgroup --system sudo 2>/dev/null
+					sed -i '/^# %sudo/s/^# //' /etc/sudoers
+					usermod -a -G sudo $user
 				)
 				;;
 			rhel)
 				(
 					set -x
-					$sh_c "groupadd -r sudo 2>/dev/null"
-					$sh_c "echo '%sudo ALL=(ALL) ALL' > /etc/sudoers"
-					$sh_c "useradd -G sudo $user"
+					groupadd -r sudo 2>/dev/null
+					echo '%sudo ALL=(ALL) ALL' > /etc/sudoers
+					useradd -G sudo $user
 				)
 				;;
 		esac
@@ -213,7 +241,7 @@ gitr_done() {
 
 wrapper() {
 	check_environment
-	set_sh_c
+	run_privileged $@
 	install_prerequisites
 	sudo_me
 	gitr_done $@
