@@ -52,11 +52,13 @@ check_environment() {
 }
 
 run_privileged() {
-	echo "in run $@"
 	if [ "$user" != 'root' ]; then
 		echo "Not running as a privileged user. Attempting to restart with authority..."
 		if command_exists su; then
-			su -c "$0 -s \"$user $@\""
+			(
+				set -x
+				su -c "$0 $user $@" root
+			)
 		elif command_exists sudo; then
 			sudo -E $0 $user $@
 		else
