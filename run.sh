@@ -58,7 +58,7 @@ run_privileged() {
 		if command_exists su; then
 			(
 				set -x
-				su -c "$run" root
+				su --preserve-environment -c "$run" root
 			)
 		elif command_exists sudo; then
 			sudo -E "$run"
@@ -204,6 +204,8 @@ do_install() {
 }
 
 sudo_me() {
+	echo $1
+	exit
 	case "$fork_of" in
 		alpine)
 			(
@@ -241,17 +243,17 @@ gitr_done() {
 	if [ ! -z "$2" ]; then
 		mkdir -p /usr/src
 		cd /usr/src
-		repo=$(sudo git clone $2 2>&1 | awk -F "'" '{print $2}')
+		repo=$(git clone $2 2>&1 | awk -F "'" '{print $2}')
 		chown -R $1:$1 /usr/src/$repo
 		args=$(echo $@ | awk '{$1="";$2="";$3="";print $0}')
 		(
 			set -x
 			cd /usr/src/$repo
-			su $1 -c "git reset --hard HEAD"
-			su $1 -c "git clean -f -d"
-			su $1 -c "git pull"
+			su --preserve-environment -c "git reset --hard HEAD" $1
+			su --preserve-environment -c "git clean -f -d" $1
+			su --preserve-environment -c "git pull" $1
 			chmod +x $3
-			su $1 -c "./$3 $args"
+			su --preserve-environment -c "./$3 $args" $1
 		)
 	fi
 }
