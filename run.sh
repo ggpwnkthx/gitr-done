@@ -38,12 +38,16 @@ check_environment() {
 }
 
 run_privileged() {
-	sh_c='sh -c'
 	if [ "$user" != 'root' ]; then
+		echo "Not running as a privileged user. Attempting to restart with authority..."
+		url=https://raw.githubusercontent.com/ggpwnkthx/gitr-done/master/run.sh
+		curl -sSL -o gitr-done $url || wget $url -O gitr-done
+		chmod +x gitr-done
+
 		if command_exists sudo; then
-			sh_c='sudo -E sh -c'
+			sudo -E ./gitr_done $@
 		elif command_exists su; then
-			sh_c='su -c'
+			su -c "./gitr_done $@"
 		else
 			cat >&2 <<-'EOF'
 			Error: this installer needs the ability to run commands as root.
@@ -51,11 +55,7 @@ run_privileged() {
 			EOF
 			exit 1
 		fi
-		echo "Not running as a privileged user. Attempting to restart with authority..."
-		url=https://raw.githubusercontent.com/ggpwnkthx/gitr-done/master/run.sh
-		curl -sSL -o gitr-done $url || wget $url -O gitr-done
-		chmod +x gitr-done
-		$sh_c "./gitr-done $@"
+		
 		rm gitr-done
 		exit
 	fi
