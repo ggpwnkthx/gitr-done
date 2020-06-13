@@ -51,7 +51,12 @@ run_privileged() {
 			EOF
 			exit 1
 		fi
-		$sh_c "$@ $@"
+		echo "Not running as a privileged user. Attempting to restart with authority..."
+		(
+			set -x
+			url=https://raw.githubusercontent.com/ggpwnkthx/gitr-done/master/run.sh
+			$sh_c "$(curl -sSL $url || wget $url -O -)" -s $@
+		)
 		exit
 	fi
 }
