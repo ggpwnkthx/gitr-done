@@ -256,6 +256,8 @@ gitr_done() {
 wrapper() {
 	check_environment
 	run_privileged $@
+	echo $0 $@
+	exit
 	install_prerequisites
 	sudo_me $1
 	gitr_done $@
