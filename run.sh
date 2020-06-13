@@ -120,7 +120,6 @@ install_prerequisites() {
 		;;
 	esac
 	do_install $packages
-	install_docker
 }
 
 install_docker() {
@@ -262,6 +261,7 @@ wrapper() {
 	run_privileged $@
 	install_prerequisites
 	sudo_me $1
+	install_docker
 	gitr_done $@
 }
 
