@@ -58,10 +58,10 @@ run_privileged() {
 		if command_exists su; then
 			(
 				set -x
-				su -c "$run" root
+				su -c "'$run'" root
 			)
 		elif command_exists sudo; then
-			sudo -E "$run"
+			sudo -E "'$run'"
 		else
 			cat >&2 <<-'EOF'
 			Error: this installer needs the ability to run commands as root.
@@ -69,7 +69,6 @@ run_privileged() {
 			EOF
 			exit 1
 		fi
-		exit
 	fi
 }
 
@@ -260,7 +259,6 @@ gitr_done() {
 wrapper() {
 	check_environment $@
 	run_privileged $@
-	exit
 	install_prerequisites
 	sudo_me $1
 	gitr_done $@
