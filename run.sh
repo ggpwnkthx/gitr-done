@@ -125,10 +125,7 @@ install_prerequisites() {
 install_docker() {
 	if ! command_exists docker; then
 		echo "Installing docker using official script..."
-		(
-			set -x
-			curl -fsSL https://get.docker.com -o - | sh - >/dev/null
-		)
+		curl -fsSL https://get.docker.com -o - | sh - >/dev/null
 	fi
 }
 
