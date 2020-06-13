@@ -252,7 +252,7 @@ gitr_done() {
 			su -c "git pull"
 			chmod +x $3
 			chown -R $1:$1 /usr/src/$repo
-			su --preserve-environment -c "./$3 $args" $1
+			su -p -c "./$3 $args" $1
 		)
 	fi
 }
