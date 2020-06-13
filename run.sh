@@ -127,6 +127,9 @@ install_docker() {
 		echo "Installing docker using official script..."
 		sh -c "$(curl -fsSL https://get.docker.com -o -)"
 	fi
+	if ! command_exists docker; then
+		do_install docker
+	fi
 }
 
 do_install() {
