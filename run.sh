@@ -128,13 +128,16 @@ install_docker() {
 		sh -c "$(curl -fsSL https://get.docker.com -o -)"
 	fi
 	if ! command_exists docker; then
-		docker="docker"
 		case "$pkgmgr" in
 			apk)
-				docker="docker@edgecommunity"
+				do_install docker@edgecommunity
+				(
+					set -x
+					rc-update add docker
+					service docker start
+				)
 			;;
 		esac
-		do_install $docker
 	fi
 }
 
