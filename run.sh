@@ -5,6 +5,20 @@ command_exists() {
 }
 
 check_environment() {
+	# If running from stdin, download to file and rerun self
+	if [ "$0" = "-s" ]; then
+		url=https://raw.githubusercontent.com/ggpwnkthx/gitr-done/master/run.sh
+		if command_exists curl; then 
+			curl -sSL -o gitr-done $url;
+		elif command_exists wget; then 
+			wget $url -O gitr-done
+		fi
+		chmod +x gitr-done
+		./gitr-done $@
+		exit
+	fi
+
+	# Get username
 	user="$(id -un 2>/dev/null || true)"
 
 	lsb_dist=""
@@ -247,15 +261,4 @@ wrapper() {
 }
 
 # wrapped up in a function so that we have some protection against only getting half the file
-if [ "$0" = "-s" ]; then
-	url=https://raw.githubusercontent.com/ggpwnkthx/gitr-done/master/run.sh
-	if command_exists curl; then 
-		curl -sSL -o gitr-done $url;
-	elif command_exists wget; then 
-		wget $url -O gitr-done
-	fi
-	chmod +x gitr-done
-	./gitr-done $@
-else
-	wrapper $@
-fi
+wrapper $@
