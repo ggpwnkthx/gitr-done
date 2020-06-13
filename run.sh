@@ -54,13 +54,14 @@ check_environment() {
 run_privileged() {
 	if [ "$user" != 'root' ]; then
 		echo "Not running as a privileged user. Attempting to restart with authority..."
+		run="$0 $user $@"
 		if command_exists su; then
 			(
 				set -x
-				su -c "$0 $user $@" root
+				su -c "$run" root
 			)
 		elif command_exists sudo; then
-			sudo -E $0 $user $@
+			sudo -E "$run"
 		else
 			cat >&2 <<-'EOF'
 			Error: this installer needs the ability to run commands as root.
