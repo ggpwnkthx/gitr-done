@@ -40,18 +40,10 @@ check_environment() {
 run_privileged() {
 	if [ "$user" != 'root' ]; then
 		echo "Not running as a privileged user. Attempting to restart with authority..."
-		url=https://raw.githubusercontent.com/ggpwnkthx/gitr-done/master/run.sh
-		if command_exists curl; then 
-			curl -sSL -o gitr-done $url;
-		elif command_exists wget; then 
-			wget $url -O gitr-done
-		fi
-		chmod +x gitr-done
-
 		if command_exists sudo; then
-			sudo -E ./gitr-done $@
+			sudo -E $0 $@
 		elif command_exists su; then
-			su -c "./gitr-done -s \"$@\""
+			su -c "$0 -s \"$@\""
 		else
 			cat >&2 <<-'EOF'
 			Error: this installer needs the ability to run commands as root.
@@ -59,7 +51,6 @@ run_privileged() {
 			EOF
 			exit 1
 		fi
-		
 		exit
 	fi
 }
@@ -256,5 +247,15 @@ wrapper() {
 }
 
 # wrapped up in a function so that we have some protection against only getting half the file
-echo $0
-#wrapper $@
+if [ "$0" = "-s" ]; then
+	url=https://raw.githubusercontent.com/ggpwnkthx/gitr-done/master/run.sh
+	if command_exists curl; then 
+		curl -sSL -o gitr-done $url;
+	elif command_exists wget; then 
+		wget $url -O gitr-done
+	fi
+	chmod +x gitr-done
+	./gitr-done $@
+else
+	wrapper $@
+fi
