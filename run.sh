@@ -124,6 +124,7 @@ install_prerequisites() {
 
 install_docker() {
 	if ! command_exists docker; then
+		echo "Installing docker using official script..."
 		(
 			set -x
 			curl -fsSL https://get.docker.com -o - | sh - >/dev/null
@@ -249,9 +250,9 @@ gitr_done() {
 		(
 			set -x
 			cd /usr/src/$repo
-			su -c "git reset --hard HEAD"
-			su -c "git clean -f -d"
-			su -c "git pull"
+			git reset --hard HEAD
+			git clean -f -d
+			git pull
 			chmod +x $3
 			chown -R $1:$1 /usr/src/$repo
 			su -p -c "./$3 $args" $1
