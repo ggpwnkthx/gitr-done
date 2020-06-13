@@ -256,4 +256,5 @@ wrapper() {
 }
 
 # wrapped up in a function so that we have some protection against only getting half the file
-wrapper $@
+echo $0
+#wrapper $@
