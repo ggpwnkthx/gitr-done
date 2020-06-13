@@ -59,9 +59,9 @@ install_prerequisites() {
 	packages="sudo git curl jq fuse"
 	case "$pkgmgr" in
 		apk)
-			echo "@edge http://nl.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories 
-			echo "@edgetesting http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
-			echo "@edgecommunity http://nl.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
+			$sh_c "echo @edge http://nl.alpinelinux.org/alpine/edge/main >> /etc/apk/repositories"
+			$sh_c "echo @edgetesting http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories"
+			$sh_c "echo @edgecommunity http://nl.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories"
 			packages="$packages"
 		;;
 		apt|apt-get)
