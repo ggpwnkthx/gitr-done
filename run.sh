@@ -205,8 +205,6 @@ do_install() {
 }
 
 sudo_me() {
-	echo $1
-	exit
 	case "$fork_of" in
 		alpine)
 			(
