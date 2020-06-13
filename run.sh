@@ -91,7 +91,7 @@ add_pkgmgr_repos() {
 			if [ -z "$(grep '^@edgecommunity ' /etc/apk/repositories)" ]; then
 				(
 					set -x
-					echo @edgetesting http://nl.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories
+					echo @edgecommunity http://nl.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories
 				)
 			fi
 		;;
