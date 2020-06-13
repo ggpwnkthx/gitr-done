@@ -55,7 +55,7 @@ run_privileged() {
 	if [ "$user" != 'root' ]; then
 		echo "Not running as a privileged user. Attempting to restart with authority..."
 		if command_exists su; then
-			su -c "$0 -s \"$user $@\""
+			su -c "$0 $user $@"
 		elif command_exists sudo; then
 			sudo -E $0 $user $@
 		else
