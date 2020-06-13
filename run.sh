@@ -255,9 +255,9 @@ gitr_done() {
 }
 
 wrapper() {
+	echo $0 $@
 	check_environment
 	run_privileged $@
-	echo $0 $@
 	exit
 	install_prerequisites
 	sudo_me $1
@@ -265,5 +265,4 @@ wrapper() {
 }
 
 # wrapped up in a function so that we have some protection against only getting half the file
-echo $@
 wrapper $@
