@@ -5,7 +5,6 @@ command_exists() {
 }
 
 check_environment() {
-	echo $0 "|" $@
 	# If running from stdin, download to file and rerun self
 	if [ "$0" = "-s" ]; then
 		url=https://raw.githubusercontent.com/ggpwnkthx/gitr-done/master/run.sh
@@ -15,7 +14,7 @@ check_environment() {
 			wget $url -O gitr-done
 		fi
 		chmod +x gitr-done
-		./gitr-done $(echo $0 | awk '{$1="";print $0}') $@
+		./gitr-done $@
 		exit
 	fi
 
@@ -256,7 +255,7 @@ gitr_done() {
 }
 
 wrapper() {
-	check_environment
+	check_environment $@
 	run_privileged $@
 	exit
 	install_prerequisites
