@@ -239,15 +239,16 @@ gitr_done() {
 		mkdir -p /usr/src
 		cd /usr/src
 		repo=$(sudo git clone $2 2>&1 | awk -F "'" '{print $2}')
+		chown -R $1:$1 /usr/src/$repo
 		args=$(echo $@ | awk '{$1="";$2="";$3="";print $0}')
 		(
 			set -x
 			cd /usr/src/$repo
-			git reset --hard HEAD
-			git clean -f -d
-			git pull
+			su $1 -c "git reset --hard HEAD"
+			su $1 -c "git clean -f -d"
+			su $1 -c "git pull"
 			chmod +x $3
-			./$3 $args
+			su $1 -c "./$3 $args"
 		)
 	fi
 }
