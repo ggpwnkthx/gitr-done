@@ -52,6 +52,7 @@ check_environment() {
 }
 
 run_privileged() {
+	echo "in run $@"
 	if [ "$user" != 'root' ]; then
 		echo "Not running as a privileged user. Attempting to restart with authority..."
 		if command_exists su; then
