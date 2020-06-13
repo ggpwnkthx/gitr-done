@@ -35,13 +35,13 @@ check_environment() {
 	case "$lsb_dist" in
 		"elementary os"|neon|linuxmint|ubuntu|kubuntu|manjaro|raspian)
 			fork_of="debian"
-			;;
+		;;
 		arch|centos|fedora)
 			fork_of="rhel"
-			;;
+		;;
 		*)
 			fork_of=$lsb_dist
-			;;
+		;;
 	esac
 
 	# Check which package manager should be used
@@ -135,14 +135,12 @@ do_install() {
 				$pkgmgr update
 			)
 			for pkg in $@; do 
-				if ! $pkgmgr search -v $pkg; then
-					(
-						set -x
-						$pkgmgr add $pkg >/dev/null
-					)
-				fi
+				(
+					set -x
+					$pkgmgr add $pkg >/dev/null
+				)
 			done
-			;;
+		;;
 		# Debian
 		apt|apt-get)
 			if [ $(date +%s --date '-10 min') -gt $(stat -c %Y /var/cache/apt/) ]; then
@@ -157,7 +155,7 @@ do_install() {
 					DEBIAN_FRONTEND=noninteractive $pkgmgr install -y $pkg >/dev/null
 				)
 			done
-			;;
+		;;
 		# RHEL
 		dnf|yum)
 			for pkg in $@; do
@@ -174,7 +172,7 @@ do_install() {
 					fi
 				fi
 			done
-			;;
+		;;
 		# Arch
 		pacman)
 			for pkg in $@; do
@@ -183,7 +181,7 @@ do_install() {
 					$pkgmgr -Sy $pkg >/dev/null
 				)
 			done
-			;;
+		;;
 		# openSUSE
 		zypper)
 			for pkg in $@; do
@@ -192,13 +190,13 @@ do_install() {
 					$pkgmgr --non-interactive --auto-agree-with-licenses install $pkg >/dev/null
 				)
 			done
-			;;
+		;;
 		*)
 			echo
 			echo "ERROR: Unsupported distribution '$lsb_dist'"
 			echo
 			exit 1
-			;;
+		;;
 	esac
 }
 
@@ -209,36 +207,40 @@ sudo_me() {
 				(
 					set -x
 					addgroup -S sudo 2>/dev/null
-					sed -i '/^# %sudo/s/^# //' /etc/sudoers
 					adduser $user sudo
 				)
-				;;
+			;;
 			debian)
 				(
 					set -x
 					addgroup --system sudo 2>/dev/null
-					sed -i '/^# %sudo/s/^# //' /etc/sudoers
 					usermod -a -G sudo $user
 				)
-				;;
+			;;
 			rhel)
 				(
 					set -x
 					groupadd -r sudo 2>/dev/null
-					echo '%sudo ALL=(ALL) ALL' > /etc/sudoers
 					useradd -G sudo $user
 				)
-				;;
+			;;
 		esac
+		
+		sed -i '/^# %sudo/s/^# //' /etc/sudoers
+		if [ -z "$(grep '^%sudo ALL=(ALL) ALL' /etc/sudoers)" ]; then
+			(
+				set -x
+				echo '%sudo ALL=(ALL) ALL' > /etc/sudoers
+			)
+		fi
 	fi
 }
 
 gitr_done() {
-	if [ -n "$1" ]; then
-		sudo mkdir -p /usr/src
+	if [ ! -z "$1" ]; then
+		mkdir -p /usr/src
 		cd /usr/src
 		repo=$(sudo git clone $1 2>&1 | awk -F "'" '{print $2}')
-		sudo chown -R $(whoami):$(whoami) /usr/src/$repo
 		args=$(echo $@ | awk '{$1="";$2="";print $0}')
 		(
 			set -x
