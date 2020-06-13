@@ -41,7 +41,11 @@ run_privileged() {
 	if [ "$user" != 'root' ]; then
 		echo "Not running as a privileged user. Attempting to restart with authority..."
 		url=https://raw.githubusercontent.com/ggpwnkthx/gitr-done/master/run.sh
-		curl -sSL -o gitr-done $url || wget $url -O gitr-done
+		if command_exists curl; then 
+			curl -sSL -o gitr-done $url;
+		elif command_exists wget; then 
+			wget $url -O gitr-done
+		fi
 		chmod +x gitr-done
 
 		if command_exists sudo; then
