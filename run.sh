@@ -52,7 +52,7 @@ check_environment() {
 }
 
 run_privileged() {
-	echo "in run $@"
+	echo "in run $0"
 	if [ "$user" != 'root' ]; then
 		echo "Not running as a privileged user. Attempting to restart with authority..."
 		if command_exists su; then
@@ -255,7 +255,6 @@ gitr_done() {
 }
 
 wrapper() {
-	echo $0 $@
 	check_environment
 	run_privileged $@
 	exit
