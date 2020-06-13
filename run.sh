@@ -49,9 +49,9 @@ run_privileged() {
 		chmod +x gitr-done
 
 		if command_exists sudo; then
-			sudo -E ./gitr_done $@
+			sudo -E ./gitr-done $@
 		elif command_exists su; then
-			su -c "./gitr_done $@"
+			su -c "./gitr-done $@"
 		else
 			cat >&2 <<-'EOF'
 			Error: this installer needs the ability to run commands as root.
