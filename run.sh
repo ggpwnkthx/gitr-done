@@ -277,13 +277,13 @@ sudo_me() {
 
 gitr_done() {
 	if [ ! -z "$2" ]; then
-		rm $SELF_LOCATE
 		mkdir -p /usr/src
 		cd /usr/src
 		repo=$(git clone $2 2>&1 | awk -F "'" '{print $2}')
 		(
 			set -x
-			cd $repo
+			rm $SELF_LOCATE
+			cd /usr/src/$repo
 			git reset --hard HEAD
 			git clean -f -d
 			git pull
