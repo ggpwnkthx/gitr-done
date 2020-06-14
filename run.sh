@@ -10,7 +10,6 @@ check_environment() {
 
 	# If running from stdin, download to file and rerun self
 	if [ "$0" = "-s" ]; then
-		SELF_LOCATE=$( cd ${0%/*} && pwd -P )/$(basename $0)
 		if [ "$user" = "root" ]; then
 			cat >&2 <<-'EOF'
 			"With great power come great responsibility." 
@@ -35,6 +34,8 @@ EOF
 		./gitr-done $@
 		exit
 	fi
+
+	SELF_LOCATE=$( cd ${0%/*} && pwd -P )/$(basename $0)
 
 	lsb_dist=""
 	# Every system that we officially support has /etc/os-release
