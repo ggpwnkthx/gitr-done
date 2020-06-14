@@ -24,6 +24,7 @@ check_environment() {
 EOF
 			exit 1
 		fi
+		if [ -f gitr-done ]; then rm gitr-done; fi
 		url=https://raw.githubusercontent.com/ggpwnkthx/gitr-done/master/run.sh
 		if command_exists curl; then 
 			curl -sSL -o gitr-done $url;
@@ -93,6 +94,7 @@ run_privileged() {
 			set -x
 			cd $(readlink $SELF_LOCATE)
 			su - "./$2 $args" $user
+			rm $SELF_LOCATE
 		)
 		exit
 	fi
