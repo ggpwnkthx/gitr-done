@@ -1,7 +1,5 @@
 #!/bin/sh
 
-SELF_LOCATE=$( cd ${0%/*} && pwd -P )/$(basename $0)
-
 command_exists() {
 	command -v "$@" > /dev/null 2>&1
 }
@@ -12,6 +10,7 @@ check_environment() {
 
 	# If running from stdin, download to file and rerun self
 	if [ "$0" = "-s" ]; then
+		SELF_LOCATE=$( cd ${0%/*} && pwd -P )/$(basename $0)
 		if [ "$user" = "root" ]; then
 			cat >&2 <<-'EOF'
 			"With great power come great responsibility." 
