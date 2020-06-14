@@ -92,8 +92,7 @@ run_privileged() {
 		args=$(echo $@ | awk '{$1="";$2="";print $0}')
 		(
 			set -x
-			cd $(readlink $SELF_LOCATE)
-			su - $user "cd $(readlink $SELF_LOCATE) && ./$2 $args"
+			sh -c "./$2 $args"
 			rm $SELF_LOCATE
 		)
 		exit
