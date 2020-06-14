@@ -72,7 +72,7 @@ run_privileged() {
 		if command_exists sudo && [ ! -z "$(groups $(whoami) | tr " " "\n" | grep '^sudo$')" ]; then
 			(
 				set -x
-				sudo -E "$run"
+				sudo $run
 			)
 		elif command_exists su; then
 			(
