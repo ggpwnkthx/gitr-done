@@ -86,9 +86,9 @@ run_privileged() {
 			EOF
 			exit 1
 		fi
-		args=$(echo $@ | awk '{$1="";$2="";$3="";print $0}')
+		args=$(echo $@ | awk '{$1="";$2="";print $0}')
 		cd /usr/src/$repo
-		./$3 $args
+		./$2 $args
 		exit
 	fi
 }
