@@ -24,7 +24,7 @@ check_environment() {
 EOF
 			exit 1
 		fi
-		if [ -f gitr-done ]; then rm gitr-done; fi
+		if [ -L gitr-done ]; then rm gitr-done; fi
 		url=https://raw.githubusercontent.com/ggpwnkthx/gitr-done/master/run.sh
 		if command_exists curl; then 
 			curl -sSL -o gitr-done $url;
