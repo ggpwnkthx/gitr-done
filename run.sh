@@ -30,7 +30,6 @@ EOF
 		elif command_exists wget; then 
 			wget $url -O gitr-done
 		fi
-		pwd
 		chmod +x gitr-done
 		./gitr-done $@
 		exit
