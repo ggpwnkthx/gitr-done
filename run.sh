@@ -87,8 +87,12 @@ run_privileged() {
 			exit 1
 		fi
 		args=$(echo $@ | awk '{$1="";$2="";print $0}')
-		cd /usr/src/$repo
-		./$2 $args
+		(
+			set -x
+			cd $0
+			./$2 $args
+		)
+		rm $0
 		exit
 	fi
 }
@@ -277,12 +281,14 @@ gitr_done() {
 		repo=$(git clone $2 2>&1 | awk -F "'" '{print $2}')
 		(
 			set -x
-			cd /usr/src/$repo
+			cd $repo
 			git reset --hard HEAD
 			git clean -f -d
 			git pull
 			chmod +x $3
 			chown -R $1:$1 /usr/src/$repo
+			rm $0
+			ln -s $0 /usr/src/$repo
 		)
 	fi
 }
