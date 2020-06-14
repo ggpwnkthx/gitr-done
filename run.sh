@@ -5,8 +5,25 @@ command_exists() {
 }
 
 check_environment() {
+	# Get username
+	user="$(id -un 2>/dev/null || true)"
+
 	# If running from stdin, download to file and rerun self
 	if [ "$0" = "-s" ]; then
+		if [ "$user" = "root" ]; then
+			cat >&2 <<-'EOF'
+			"With great power come great responsibility." 
+				~ Uncle Ben
+
+			Do NOT execute scripts from the Internet directly as the root user.
+			Yes, this script will ask to become root so that it can install required packages, 
+			but it's an increadibly bad habbit to raw dog the Internet as a super user.
+
+			The requested script will be run by the calling user after the prerequisites are installed.
+			The script will NOT be rub as root. This is by design.
+EOF
+			exit 1
+		fi
 		url=https://raw.githubusercontent.com/ggpwnkthx/gitr-done/master/run.sh
 		if command_exists curl; then 
 			curl -sSL -o gitr-done $url;
@@ -17,9 +34,6 @@ check_environment() {
 		./gitr-done $@
 		exit
 	fi
-
-	# Get username
-	user="$(id -un 2>/dev/null || true)"
 
 	lsb_dist=""
 	# Every system that we officially support has /etc/os-release
@@ -72,6 +86,9 @@ run_privileged() {
 			EOF
 			exit 1
 		fi
+		args=$(echo $@ | awk '{$1="";$2="";$3="";print $0}')
+		cd /usr/src/$repo
+		./$3 $args
 		exit
 	fi
 }
@@ -258,7 +275,6 @@ gitr_done() {
 		mkdir -p /usr/src
 		cd /usr/src
 		repo=$(git clone $2 2>&1 | awk -F "'" '{print $2}')
-		args=$(echo $@ | awk '{$1="";$2="";$3="";print $0}')
 		(
 			set -x
 			cd /usr/src/$repo
@@ -267,7 +283,6 @@ gitr_done() {
 			git pull
 			chmod +x $3
 			chown -R $1:$1 /usr/src/$repo
-			su -p -c "./$3 $args" $1
 		)
 	fi
 }
