@@ -35,8 +35,6 @@ EOF
 		exit
 	fi
 
-	SELF_LOCATE=$( cd ${0%/*} && pwd -P )/$(basename $0)
-
 	lsb_dist=""
 	# Every system that we officially support has /etc/os-release
 	if [ -r /etc/os-release ]; then
@@ -70,7 +68,6 @@ EOF
 run_privileged() {
 	if [ "$user" != 'root' ]; then
 		echo "Not running as a privileged user. Attempting to restart with authority..."
-		pwd
 		run="$0 $user $@"
 		if command_exists sudo && [ ! -z "$(groups $(whoami) | tr " " "\n" | grep '^sudo$')" ]; then
 			(
@@ -89,6 +86,7 @@ run_privileged() {
 			EOF
 			exit 1
 		fi
+		SELF_LOCATE=$( cd ${0%/*} && pwd -P )/$(basename $0)
 		args=$(echo $@ | awk '{$1="";$2="";print $0}')
 		(
 			set -x
@@ -281,15 +279,16 @@ gitr_done() {
 		mkdir -p /usr/src
 		cd /usr/src
 		repo=$(git clone $2 2>&1 | awk -F "'" '{print $2}')
+		SELF_LOCATE=$( cd ${0%/*} && pwd -P )/$(basename $0)
 		(
 			set -x
-			rm $SELF_LOCATE
 			cd /usr/src/$repo
 			git reset --hard HEAD
 			git clean -f -d
 			git pull
 			chmod +x $3
 			chown -R $1:$1 /usr/src/$repo
+			rm $SELF_LOCATE
 			ln -s /usr/src/$repo $SELF_LOCATE
 		)
 	fi
