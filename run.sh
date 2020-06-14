@@ -12,7 +12,7 @@ check_environment() {
 	if [ "$0" = "-s" ]; then
 		if [ "$user" = "root" ]; then
 			cat >&2 <<-'EOF'
-			"With great power come great responsibility." 
+			"With great power comes great responsibility." 
 				~ Uncle Ben
 
 			Do NOT execute scripts from the Internet directly as the root user.
@@ -30,6 +30,7 @@ EOF
 		elif command_exists wget; then 
 			wget $url -O gitr-done
 		fi
+		pwd
 		chmod +x gitr-done
 		./gitr-done $@
 		exit
