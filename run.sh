@@ -35,6 +35,8 @@ EOF
 		exit
 	fi
 
+	SELF_LOCATE=$( cd ${0%/*} && pwd -P )/$(basename $0)
+
 	lsb_dist=""
 	# Every system that we officially support has /etc/os-release
 	if [ -r /etc/os-release ]; then
@@ -86,7 +88,6 @@ run_privileged() {
 			EOF
 			exit 1
 		fi
-		SELF_LOCATE=$( cd ${0%/*} && pwd -P )/$(basename $0)
 		args=$(echo $@ | awk '{$1="";$2="";print $0}')
 		(
 			set -x
@@ -279,7 +280,6 @@ gitr_done() {
 		mkdir -p /usr/src
 		cd /usr/src
 		repo=$(git clone $2 2>&1 | awk -F "'" '{print $2}')
-		SELF_LOCATE=$( cd ${0%/*} && pwd -P )/$(basename $0)
 		(
 			set -x
 			cd /usr/src/$repo
