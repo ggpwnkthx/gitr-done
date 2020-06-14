@@ -92,7 +92,6 @@ run_privileged() {
 			cd $(readlink $0)
 			./$2 $args
 		)
-		rm $0
 		exit
 	fi
 }
