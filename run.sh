@@ -87,7 +87,6 @@ run_privileged() {
 			exit 1
 		fi
 		args=$(echo $@ | awk '{$1="";$2="";print $0}')
-
 		(
 			set -x
 			cd $(readlink $0)
@@ -289,7 +288,7 @@ gitr_done() {
 			chmod +x $3
 			chown -R $1:$1 /usr/src/$repo
 			rm $0
-			ln -s $0 /usr/src/$repo
+			ln -s /usr/src/$repo $0
 		)
 	fi
 }
