@@ -87,9 +87,10 @@ run_privileged() {
 			exit 1
 		fi
 		args=$(echo $@ | awk '{$1="";$2="";print $0}')
+
 		(
 			set -x
-			cd $0
+			cd $(readlink $0)
 			./$2 $args
 		)
 		rm $0
