@@ -68,8 +68,9 @@ EOF
 run_privileged() {
 	if [ "$user" != 'root' ]; then
 		echo "Not running as a privileged user. Attempting to restart with authority..."
-		pwd
-		ls
+		ls -l
+		chmod +x $0
+		ls -l
 		run="$0 $user $@"
 		if command_exists sudo && [ ! -z "$(groups $(whoami) | tr " " "\n" | grep '^sudo$')" ]; then
 			(
