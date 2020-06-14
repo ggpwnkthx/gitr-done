@@ -1,5 +1,7 @@
 #!/bin/sh
 
+SELF_LOCATE=$( cd ${0%/*} && pwd -P )/$(basename $0)
+
 command_exists() {
 	command -v "$@" > /dev/null 2>&1
 }
@@ -89,7 +91,7 @@ run_privileged() {
 		args=$(echo $@ | awk '{$1="";$2="";print $0}')
 		(
 			set -x
-			cd $(readlink $0)
+			cd $(readlink $SELF_LOCATE)
 			./$2 $args
 		)
 		exit
@@ -275,6 +277,7 @@ sudo_me() {
 
 gitr_done() {
 	if [ ! -z "$2" ]; then
+		rm $SELF_LOCATE
 		mkdir -p /usr/src
 		cd /usr/src
 		repo=$(git clone $2 2>&1 | awk -F "'" '{print $2}')
@@ -286,8 +289,7 @@ gitr_done() {
 			git pull
 			chmod +x $3
 			chown -R $1:$1 /usr/src/$repo
-			rm $0
-			ln -s /usr/src/$repo $0
+			ln -s /usr/src/$repo $SELF_LOCATE
 		)
 	fi
 }
