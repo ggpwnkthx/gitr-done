@@ -92,7 +92,7 @@ run_privileged() {
 		(
 			set -x
 			cd $(readlink $SELF_LOCATE)
-			./$2 $args
+			su - "./$2 $args" $user
 		)
 		exit
 	fi
