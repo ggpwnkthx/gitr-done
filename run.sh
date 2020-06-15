@@ -89,12 +89,27 @@ run_privileged() {
 			EOF
 			exit 1
 		fi
+
 		args=$(echo $@ | awk '{$1="";$2="";print $0}')
-		(
-			set -x
-			sh -c "cd $(readlink $SELF_LOCATE); ./$2 $args"
-			rm $SELF_LOCATE
-		)
+		dir=$(readlink $SELF_LOCATE)
+		sudo echo "" >/dev/null 2>/dev
+		if [ $? -gt 0 ]; then
+			# This is a fix for system that recently had sudo installed,
+			# so that a new session is not required.
+			(
+				set -x
+				sg sudo -c "cd $dir; ./$2 $args"
+				rm $SELF_LOCATE
+			)
+		else
+			(
+				set -x
+				cd $dir
+				./$2 $args
+				rm $SELF_LOCATE
+			)
+		fi
+		
 		exit
 	fi
 }
@@ -130,7 +145,7 @@ install_prerequisites() {
 	packages="sudo git curl jq fuse"
 	case "$pkgmgr" in
 		apk)
-			packages="$packages"
+			packages="shadow@edgecommunity $packages"
 		;;
 		apt|apt-get)
 			packages="apt-transport-https ca-certificates $packages"
