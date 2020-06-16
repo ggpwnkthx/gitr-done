@@ -92,6 +92,16 @@ run_privileged() {
 
 		args=$(echo $@ | awk '{$1="";$2="";print $0}')
 		dir=$(readlink $SELF_LOCATE)
+		cat >&2 <<-'EOF'
+
+#----------------------------------------#
+	Prerequisites installed.
+	Executing $dir/$2 
+ 		from the $1 repo
+		as $(whoami)
+#----------------------------------------#
+
+EOF
 		# This is a fix for system that recently had sudo installed,
 		# so that a new session is not required.
 		(
@@ -99,7 +109,6 @@ run_privileged() {
 			sg sudo -c "cd $dir; ./$2 $args"
 			rm $SELF_LOCATE
 		)
-		
 		exit
 	fi
 }
