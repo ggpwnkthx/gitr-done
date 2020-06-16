@@ -92,7 +92,7 @@ run_privileged() {
 
 		args=$(echo $@ | awk '{$1="";$2="";print $0}')
 		dir=$(readlink $SELF_LOCATE)
-		cat >&2 <<-'EOF'
+		cat >&2 <<-"EOF"
 
 #----------------------------------------#
 	Prerequisites installed.
