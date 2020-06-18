@@ -72,18 +72,16 @@ run_privileged() {
 	if [ "$user" != 'root' ]; then
 		echo "Not running as a privileged user. Attempting to restart with authority..."
 		run="$0 $user $@"
-		sudo_exit=1
 		if command_exists sudo && [ ! -z "$(groups $(whoami) | tr " " "\n" | grep '^sudo$')" ]; then
 			(
 				set -x
 				sudo $run
-				sudo_exit=$?
 			)
-			if [ $sudo_exit -gt 0 ]; then
+			if [ ! -L $SELF_LOCATE ]; then
 				echo "Seems like 'sudo' didn't work for some reason, retrying elevation with 'su'."
 			fi
 		fi
-		if command_exists su && [ $sudo_exit -gt 0 ]; then
+		if command_exists su && [ ! -L $SELF_LOCATE ]; then
 			(
 				set -x
 				su -c "$run" root
