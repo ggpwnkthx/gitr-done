@@ -223,7 +223,7 @@ do_install() {
 						set -x
 						$pkgmgr install -y $pkg >/dev/null
 					)
-					if $pkg -eq epel-release; then
+					if [ "$pkg" = "epel-release" ]; then
 						(
 							set -x
 							$pkgmgr update >/dev/null
