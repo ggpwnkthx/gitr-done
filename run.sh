@@ -72,17 +72,24 @@ run_privileged() {
 	if [ "$user" != 'root' ]; then
 		echo "Not running as a privileged user. Attempting to restart with authority..."
 		run="$0 $user $@"
+		sudo_exit=1
 		if command_exists sudo && [ ! -z "$(groups $(whoami) | tr " " "\n" | grep '^sudo$')" ]; then
 			(
 				set -x
 				sudo $run
+				sudo_exit=$?
 			)
-		elif command_exists su; then
+		fi
+		if [ $sudo_exit -gt 0 ]; then
+			echo "Seems like 'sudo' didn't work for some reason, retrying elevation with 'su'."
+		fi
+		if command_exists su && [ $sudo_exit -gt 0 ]; then
 			(
 				set -x
 				su -c "$run" root
 			)
-		else
+		fi
+		if ! command_exists sudo && ! command_exists su; then
 			cat >&2 <<-'EOF'
 			Error: this installer needs the ability to run commands as root.
 			We are unable to find "sudo" or "su" available to make this happen.
