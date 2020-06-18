@@ -79,9 +79,9 @@ run_privileged() {
 				sudo $run
 				sudo_exit=$?
 			)
-		fi
-		if [ $sudo_exit -gt 0 ]; then
-			echo "Seems like 'sudo' didn't work for some reason, retrying elevation with 'su'."
+			if [ $sudo_exit -gt 0 ]; then
+				echo "Seems like 'sudo' didn't work for some reason, retrying elevation with 'su'."
+			fi
 		fi
 		if command_exists su && [ $sudo_exit -gt 0 ]; then
 			(
@@ -298,7 +298,7 @@ gitr_done() {
 	if [ ! -z "$2" ]; then
 		mkdir -p /usr/src
 		cd /usr/src
-		repo=$(echo $2 | awk -F/ '{print $NG}' | awk -F. '{print $1}')
+		repo=$(echo $2 | awk -F/ '{print $NF}' | awk -F. '{print $1}')
 		(
 			set -x
 			git clone $2
