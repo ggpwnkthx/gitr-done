@@ -153,7 +153,7 @@ install_prerequisites() {
 			packages="apt-transport-https ca-certificates $packages"
 		;;
 		dnf|yum)
-			packages="epel-release $packages"
+			packages="epel-release containerd.io $packages"
 		;;
 		pacman)
 			packages="$packages"
