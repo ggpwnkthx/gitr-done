@@ -273,6 +273,7 @@ sudo_me() {
 				set -x
 				groupadd -r sudo 2>/dev/null
 				useradd -G sudo $1
+				gpasswd -M $1 sudo
 			)
 		;;
 	esac
