@@ -138,6 +138,11 @@ add_pkgmgr_repos() {
 				)
 			fi
 		;;
+		dnf|yum)
+			(
+				set -x
+				$pkgmgr install -y epel-release >/dev/null
+			)
 	esac
 }
 
@@ -153,7 +158,7 @@ install_prerequisites() {
 			packages="apt-transport-https ca-certificates $packages"
 		;;
 		dnf|yum)
-			packages="epel-release containerd.io $packages"
+			packages="containerd.io $packages"
 		;;
 		pacman)
 			packages="$packages"
@@ -184,7 +189,7 @@ install_docker() {
 				(
 					set -x
 					dnf install -y docker-ce --nobest
-					systemctl start docker
+					systemctl enable --now docker
 				)
 			;;
 		esac
@@ -230,12 +235,6 @@ do_install() {
 						set -x
 						$pkgmgr install -y $pkg >/dev/null
 					)
-					if [ "$pkg" = "epel-release" ]; then
-						(
-							set -x
-							$pkgmgr update -y >/dev/null
-						)
-					fi
 				fi
 			done
 		;;
