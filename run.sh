@@ -291,9 +291,10 @@ gitr_done() {
 	if [ ! -z "$2" ]; then
 		mkdir -p /usr/src
 		cd /usr/src
-		repo=$(git clone $2 2>&1 | awk -F "'" '{print $2}')
+		repo=$(echo $2 | awk -F/ '{print $NG}' | awk -F. '{print $1}')
 		(
 			set -x
+			git clone $2
 			cd /usr/src/$repo
 			git reset --hard HEAD
 			git clean -f -d
