@@ -180,6 +180,13 @@ install_docker() {
 					service docker start
 				)
 			;;
+			dnf)
+				(
+					set -x
+					dnf install -y docker-ce --nobest
+					systemctl start docker
+				)
+			;;
 		esac
 	fi
 }
