@@ -284,11 +284,10 @@ sudo_me() {
 				set -x
 				groupadd -r sudo 2>/dev/null
 				useradd -G sudo $1
-				gpasswd -M $1 sudo
 			)
 		;;
 	esac
-	
+	gpasswd -M $1 sudo
 	sed -i '/^# %sudo/s/^# //' /etc/sudoers
 	if [ -z "$(grep '^%sudo ALL=(ALL) ALL' /etc/sudoers)" ]; then
 		(
