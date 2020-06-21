@@ -107,7 +107,7 @@ run_privileged() {
 		# so that a new session is not required.
 		(
 			set -x
-			sg sudo -c "cd $dir; ./$2 $args"
+			sg sudo -c "cd $dir; ./$2 $args;"
 			rm $SELF_LOCATE
 		)
 		exit
