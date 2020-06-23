@@ -86,7 +86,7 @@ run_privileged() {
 				set -x
 				su -c "$run" root
 			)
-			if $? -gt 0; then exit 1; fi
+			if [ $? -gt 0 ]; then exit 1; fi
 		fi
 		if ! command_exists sudo && ! command_exists su; then
 			cat >&2 <<-'EOF'
