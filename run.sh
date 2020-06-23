@@ -118,22 +118,22 @@ run_privileged() {
 add_pkgmgr_repos() {
 	case "$pkgmgr" in
 		apk)
-			if [ -z "$(grep '^@edge ' /etc/apk/repositories)" ]; then
+			if [ -z "$(grep '^@edge_main ' /etc/apk/repositories)" ]; then
 				(
 					set -x
-					echo @edge http://nl.alpinelinux.org/alpine/edge/main >> /etc/apk/repositories
+					echo @edge_main http://nl.alpinelinux.org/alpine/edge/main >> /etc/apk/repositories
 				)
 			fi
-			if [ -z "$(grep '^@edgetesting ' /etc/apk/repositories)" ]; then
+			if [ -z "$(grep '^@edge_testing ' /etc/apk/repositories)" ]; then
 				(
 					set -x
-					echo @edgetesting http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories
+					echo @edge_testing http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories
 				)
 			fi
-			if [ -z "$(grep '^@edgecommunity ' /etc/apk/repositories)" ]; then
+			if [ -z "$(grep '^@edge_community ' /etc/apk/repositories)" ]; then
 				(
 					set -x
-					echo @edgecommunity http://nl.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories
+					echo @edge_community http://nl.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories
 				)
 			fi
 		;;
@@ -151,7 +151,7 @@ install_prerequisites() {
 	packages="sudo git curl jq fuse"
 	case "$pkgmgr" in
 		apk)
-			packages="shadow@edgecommunity $packages"
+			packages="shadow@edge_community $packages"
 		;;
 		apt|apt-get)
 			packages="apt-transport-https ca-certificates $packages"
@@ -177,7 +177,7 @@ install_docker() {
 	if ! command_exists docker; then
 		case "$pkgmgr" in
 			apk)
-				do_install docker@edgecommunity
+				do_install docker@edge_community
 				(
 					set -x
 					rc-update add docker
