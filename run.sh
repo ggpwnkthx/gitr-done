@@ -148,22 +148,22 @@ add_pkgmgr_repos() {
 install_prerequisites() {
 	add_pkgmgr_repos
 	# Run setup for each distro accordingly
-	packages="sudo git curl jq fuse"
+	packages="sudo git curl jq fuse ipcalc"
 	case "$pkgmgr" in
 		apk)
-			packages="shadow@edge_community $packages"
+			packages="shadow@edge_community bind-tools $packages"
 		;;
 		apt|apt-get)
-			packages="apt-transport-https ca-certificates $packages"
+			packages="apt-transport-https ca-certificates dnsutils $packages"
 		;;
 		dnf|yum)
-			packages="containerd.io $packages"
+			packages="containerd.io bind-utils $packages"
 		;;
 		pacman)
-			packages="$packages"
+			packages="dnsutils $packages"
 		;;
 		zypper)
-			packages="$packages"
+			packages="dnsutils $packages"
 		;;
 	esac
 	do_install $packages
