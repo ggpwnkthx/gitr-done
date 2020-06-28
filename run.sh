@@ -98,19 +98,21 @@ run_privileged() {
 
 		args=$(echo $@ | awk '{$1="";$2="";print $0}')
 		dir=$(readlink $SELF_LOCATE)
-		echo "#----------------------------------------#"
-		echo "Prerequisites installed."
-		echo "Executing $dir/$2 "
- 		echo "	from the $1 repo"
-		echo "	as $(whoami)"
-		echo "#----------------------------------------#"
-		# This is a fix for system that recently had sudo installed,
-		# so that a new session is not required.
-		(
-			set -x
-			sg sudo -c "cd $dir; ./$2 $args;"
-			rm $SELF_LOCATE
-		)
+		if [ -f "$dir/$2" ]; then
+			echo "#----------------------------------------#"
+			echo "Prerequisites installed."
+			echo "Executing $dir/$2 "
+			echo "	from the $1 repo"
+			echo "	as $(whoami)"
+			echo "#----------------------------------------#"
+			# This is a fix for system that recently had sudo installed,
+			# so that a new session is not required.
+			(
+				set -x
+				sg sudo -c "cd $dir; ./$2 $args;"
+				rm $SELF_LOCATE
+			)
+		fi
 		exit
 	fi
 }
