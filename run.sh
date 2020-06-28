@@ -9,6 +9,7 @@ check_environment() {
 	user="$(id -un 2>/dev/null || true)"
 
 	# If running from stdin, download to file and rerun self
+	echo $0
 	if [ "$0" = "-s" ]; then
 		if [ "$user" = "root" ]; then
 			cat >&2 <<-'EOF'
