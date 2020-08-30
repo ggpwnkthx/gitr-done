@@ -10,19 +10,23 @@ check_environment() {
 
 	# If running from stdin, download to file and rerun self
 	if [ "$0" = "-s" ] || [ "$0" = "sh" ]; then
-		if [ "$user" = "root" ]; then
-			cat >&2 <<-'EOF'
-			"With great power comes great responsibility." 
-				~ Uncle Ben
+		if [ ! -z "$IGNORE_ROOT" ]; then
+			if [ "$user" = "root" ]; then
+				cat >&2 <<-'EOF'
 
-			Do NOT execute scripts from the Internet directly as the root user.
-			Yes, this script will ask to become root so that it can install required packages, 
-			but it's an increadibly bad habbit to raw dog the Internet as a super user.
+				"With great power comes great responsibility." 
+					~ Uncle Ben
 
-			The requested script will be run by the calling user after the prerequisites are installed.
-			The script will NOT be rub as root. This is by design.
-EOF
-			exit 1
+				Do NOT execute scripts from the Internet directly as the root user.
+				
+				Yes, this script will ask to become root so that it can install required packages, 
+				but it's an increadibly bad habbit to raw dog the Internet as a super user.
+
+				The requested script will be run by the calling user after the prerequisites are installed.
+				The script will NOT be rub as root. This is by design.
+	EOF
+				exit 1
+			fi
 		fi
 		if [ -L gitr-done ]; then rm gitr-done; fi
 		url=https://raw.githubusercontent.com/ggpwnkthx/gitr-done/master/run.sh
